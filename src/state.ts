@@ -1,6 +1,7 @@
 import { atom, DefaultValue } from 'recoil'
 import { DidDht, BearerDid } from '@web5/dids'
-import { getCredentialFromIssuer } from './mocks/mocks'
+import { getCredentialFromIssuer } from './api-utils'
+
 
 // Atom to hold the DID
 export const didState = atom<BearerDid | null>({
@@ -43,7 +44,7 @@ export const credentialsState = atom<string[]>({
       const storedCredentials = localStorage.getItem('CREDENTIALS')
       if (storedCredentials) {
         setSelf(JSON.parse(storedCredentials))
-      } 
+      }
       else {
         if (localStorage.getItem('DID')) {
           getCredentialFromIssuer({
@@ -71,7 +72,7 @@ export const credentialsState = atom<string[]>({
 })
 
 export const balanceState = atom<number>({
-  key: 'balanceState', 
+  key: 'balanceState',
   default: 100,
   effects_UNSTABLE: [
     ({ onSet, setSelf }) => {

@@ -7,7 +7,7 @@ import {nodePolyfills} from 'vite-plugin-node-polyfills'
 export default defineConfig({
   plugins: [react(), nodePolyfills()],
   server: {
-    port: 8080,
+    port: 3000,
   },
   build: {
     commonjsOptions: {
@@ -16,7 +16,7 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
-    'process.env.COMMIT_HASH': 
+    'process.env.COMMIT_HASH':
       process.env.COMMIT_HASH ? JSON.stringify(process.env.COMMIT_HASH) : undefined,
   }
 })

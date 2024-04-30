@@ -18,9 +18,9 @@ import { ExchangesContext } from './ExchangesContext'
 async function loadExchanges(did: BearerDid): Promise<Exchange[]> {
   const fetchedExchanges = []
   const pfis = [
-    mockProviderDids.pfi_0.uri,
     mockProviderDids.pfi_1.uri,
     mockProviderDids.pfi_2.uri,
+    mockProviderDids.pfi_3.uri,
   ]
   for (const pfiUri of pfis) {
     try {
@@ -92,7 +92,7 @@ export function Exchanges() {
         <Spinner />
       </div>
     )
-  } 
+  }
 
   if (exchanges === null) {
     return (
@@ -101,7 +101,7 @@ export function Exchanges() {
         <p className="truncate text-xs leading-5 text-gray-500">There was an error trying to loading transactions.</p>
       </div>
     )
-  } 
+  }
 
   return (
     <>
@@ -138,6 +138,6 @@ export function Exchanges() {
           )}
         </dialog>
     </>
-   
+
   )
 }

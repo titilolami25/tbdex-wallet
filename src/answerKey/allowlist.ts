@@ -1,5 +1,6 @@
 import { mockProviderDids } from '../mocks/mocks'
 
+
 export interface PfiAllowlistConfig {
   pfiUri: string,
   pfiName: string
@@ -7,15 +8,15 @@ export interface PfiAllowlistConfig {
 
 export const pfiAllowlist: PfiAllowlistConfig[] = [
   {
-    pfiUri: mockProviderDids.pfi_0.uri,
-    pfiName: 'Bob\'s Bucks'
-  },
-  {
     pfiUri: mockProviderDids.pfi_1.uri,
-    pfiName: 'Acme Bank'
+    pfiName: 'Bob\'s Bank'
   },
   {
     pfiUri: mockProviderDids.pfi_2.uri,
-    pfiName: 'Finders Financial Services'
+    pfiName: 'Alice\'s Bank'
+  },
+  {
+    pfiUri: mockProviderDids.pfi_3.uri,
+    pfiName: 'Charlie\'s Chop Shop'
   }
 ]

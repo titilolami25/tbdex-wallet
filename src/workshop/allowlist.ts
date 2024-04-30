@@ -9,15 +9,15 @@ export interface PfiAllowlistConfig {
 
 export const pfiAllowlist: PfiAllowlistConfig[] = [
   {
-    pfiUri: mockProviderDids.pfi_0.uri,
+    pfiUri: mockProviderDids.pfi_1.uri,
     pfiName: 'Bob\'s Bank'
   },
   {
-    pfiUri: mockProviderDids.pfi_1.uri,
+    pfiUri: mockProviderDids.pfi_2.uri,
     pfiName: 'Alice\'s Bank'
   },
   {
-    pfiUri: mockProviderDids.pfi_2.uri,
+    pfiUri: mockProviderDids.pfi_3.uri,
     pfiName: 'Charlie\'s Chop Shop'
   }
 ]

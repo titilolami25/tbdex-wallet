@@ -2,7 +2,7 @@ import { BearerDid } from '@web5/dids'
 import { Close, Offering, TbdexHttpClient } from '@tbdex/http-client'
 import { SendCloseOptions, SendOrderOptions, SendRfqOptions, sendOrder, sendRFQ, sendClose } from './workshop/messageUtils'
 import { Jwt, VcDataModel } from '@web5/credentials'
-import { getCredentialFromIssuer } from './mocks/mocks'
+
 
 export type ClientExchange = {
   id: string;
@@ -17,8 +17,14 @@ export type ClientExchange = {
   to: string,
   pfiDid: string
 }
+// 0. Get credential from issuer
+export async function getCredentialFromIssuer(params: { subjectDid: string, data: Record<string, unknown> }) {
+  const { subjectDid, data } = params
+  // call api and return the credential
+  return 'jwt:' + subjectDid + ' ' + JSON.stringify(data)
+}
 
-// 1. Set up credential flow by requesting credential from an issuer 
+// 1. Set up credential flow by requesting credential from an issuer
 export async function requestCredentialFromIssuer(didUri, countryCode) {
   const credential = await getCredentialFromIssuer({
     subjectDid: didUri,
@@ -27,7 +33,7 @@ export async function requestCredentialFromIssuer(didUri, countryCode) {
     }
   })
   return credential
-}  
+}
 
 // 2. Render the credential you obtained from the issuer.
 export function renderCredential(credentialJwt: string) {
@@ -155,4 +161,3 @@ export async function addOrder(opts: SendOrderOptions) {
 export async function addClose(opts: SendCloseOptions) {
   return await sendClose({ ...opts })
 }
-
