@@ -14,20 +14,29 @@ export function GetCredentialPage() {
   const getCredentials = async (e) => {
     e.preventDefault()
     const formData = new FormData(formRef.current)
-    const credential = await requestCredentialFromIssuer(did.uri, formData.get('countryCode'))
+    const credential = await requestCredentialFromIssuer(did.uri, formData.get('customerName'), formData.get('countryCode'))
     setCredentials([...credentials, credential])
   }
 
   return (
     <div className="flex items-center justify-center" style={{ height: '100dvh' }}>
       <form ref={formRef} onSubmit={(e) => getCredentials(e)} className="text-center">
-        <label className="sr-only" htmlFor="countryCode">Country code</label> 
-        <input 
-          className="block w-full p-3 text-2xl mb-4 border-2 text-white bg-neutral-800 rounded-md focus:text-white placeholder:text-gray-400 focus:ring-transparent sm:leading-6" 
-          required 
-          id="countryCode" 
-          name="countryCode" 
-          placeholder="Country code (eg. UK)" 
+        <label className="sr-only" htmlFor="countryCode">Your name</label>
+        <input
+          className="block w-full p-3 text-2xl mb-4 border-2 text-white bg-neutral-800 rounded-md focus:text-white placeholder:text-gray-400 focus:ring-transparent sm:leading-6"
+          required
+          id="customerName"
+          name="customerName"
+          placeholder="Name (eg. John Doe)"
+          maxLength={20}
+          autoComplete='off' />
+        <label className="sr-only" htmlFor="countryCode">Country code</label>
+        <input
+          className="block w-full p-3 text-2xl mb-4 border-2 text-white bg-neutral-800 rounded-md focus:text-white placeholder:text-gray-400 focus:ring-transparent sm:leading-6"
+          required
+          id="countryCode"
+          name="countryCode"
+          placeholder="Country code (eg. UK)"
           maxLength={2}
           autoComplete='off' />
         <button

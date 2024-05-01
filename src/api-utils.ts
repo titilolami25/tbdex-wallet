@@ -20,16 +20,22 @@ export type ClientExchange = {
 // 0. Get credential from issuer
 export async function getCredentialFromIssuer(params: { subjectDid: string, data: Record<string, unknown> }) {
   const { subjectDid, data } = params
+  console.log('The params', params)
+  console.log('The data', data)
   // call api and return the credential
-  return 'jwt:' + subjectDid + ' ' + JSON.stringify(data)
+  const credential =  await fetch(
+                `http://localhost:9000/vc?name=${data.customerName}&country=${data.country}&did=${subjectDid}`,
+            ).then((r) => r.text())
+  return credential
 }
 
 // 1. Set up credential flow by requesting credential from an issuer
-export async function requestCredentialFromIssuer(didUri, countryCode) {
+export async function requestCredentialFromIssuer(didUri, customerName, country) {
   const credential = await getCredentialFromIssuer({
     subjectDid: didUri,
     data: {
-      countryCode
+      customerName,
+      country
     }
   })
   return credential
@@ -40,7 +46,8 @@ export function renderCredential(credentialJwt: string) {
   const vc: Partial<VcDataModel> = Jwt.parse({ jwt: credentialJwt }).decoded.payload['vc']
   return {
     title: vc.type[vc.type.length - 1].replace(/(?<!^)(?<![A-Z])[A-Z](?=[a-z])/g, ' $&'), // get the last credential type in the array and format it with spaces
-    countryCode: vc.credentialSubject['countryCode'],
+    name: vc.credentialSubject['name'],
+    countryCode: vc.credentialSubject['country'],
     issuanceDate: new Date(vc.issuanceDate).toLocaleDateString(undefined, {dateStyle: 'medium'}),
   }
 }
