@@ -19,9 +19,9 @@ export type SendCloseOptions = CloseData & {
 }
 
 export async function sendRFQ(opts: SendRfqOptions) {
-  const { 
-    offeringId, 
-    payinAmount, 
+  const {
+    offeringId,
+    payinAmount,
     payinMethod,
     payoutMethod,
     claims,
@@ -46,7 +46,7 @@ export async function sendRFQ(opts: SendRfqOptions) {
 }
 
 export async function sendOrder(opts: SendOrderOptions) {
-  const { 
+  const {
     exchangeId,
     didState,
     pfiUri
@@ -63,7 +63,7 @@ export async function sendOrder(opts: SendOrderOptions) {
 }
 
 export async function sendClose(opts: SendCloseOptions) {
-  const { 
+  const {
     exchangeId,
     didState,
     pfiUri,

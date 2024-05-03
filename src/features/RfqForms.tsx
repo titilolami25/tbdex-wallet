@@ -30,7 +30,7 @@ export const getRfqForms = (offering: Offering, handleNext, handleBack) => {
       title: 'Enter delivery details',
       component: (
         <RfqAddressPage
-          schema={offering.data.payoutMethods[0].requiredPaymentDetails}
+          schema={offering.data.payout.methods[0].requiredPaymentDetails}
           onBack={handleBack}
           onNext={handleNext}
         />

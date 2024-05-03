@@ -8,12 +8,12 @@ import React, { useState } from 'react'
  * @param {Object} props.offeringsByCountry - Offerings by country used for displaying in the Offerings page.
  * @returns {JSX.Element} - Returns the RfqProvider component.
  */
-export const RfqContext = React.createContext({ 
+export const RfqContext = React.createContext({
   offering: undefined as Offering,
   payinAmount: undefined as string,
   setPayinAmount: undefined,
-  payoutAmount: undefined as string, 
-  setPayoutAmount: undefined, 
+  payoutAmount: undefined as string,
+  setPayoutAmount: undefined,
   paymentDetails: undefined,
   setPaymentDetails: undefined
 })

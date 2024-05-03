@@ -20,13 +20,20 @@ export function RfqModal(props: RfqModalProps) {
   const [credentials] = useRecoilState(credentialsState)
   const [did] = useRecoilState(didState)
 
-  const submitRfq = async () => { 
+  const submitRfq = async () => {
+    console.log('THe Did', did)
     await createExchange({
       pfiUri: offering.metadata.from,
-      offeringId: offering.id, 
-      payinAmount: Number(payinAmount).toFixed(2).toString(), 
-      payinMethod: { kind: offering.data.payinMethods[0].kind, paymentDetails: {} },
-      payoutMethod: { kind: offering.data.payoutMethods[0].kind, paymentDetails },
+      offeringId: offering.id,
+      payin: {
+        amount: Number(payinAmount).toFixed(2).toString(),
+        kind: offering.data.payin.methods[0].kind,
+        paymentDetails: {}
+      },
+      payout: {
+        kind: offering.data.payout.methods[0].kind,
+        paymentDetails
+      },
       claims: credentials,
       didState: did
     })

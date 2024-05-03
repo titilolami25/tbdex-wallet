@@ -19,5 +19,13 @@ export const pfiAllowlist: PfiAllowlistConfig[] = [
   {
     pfiUri: mockProviderDids.pfi_3.uri,
     pfiName: 'Charlie\'s Chop Shop'
+  },
+  {
+    pfiUri: mockProviderDids.pfi_4.uri,
+    pfiName: 'Dummy YellowCard'
+  },
+  {
+    pfiUri: mockProviderDids.pfi_5.uri,
+    pfiName: 'Circle Sandbox'
   }
 ]

@@ -10,18 +10,15 @@ import 'react-toastify/dist/ReactToastify.css'
 import { useRecoilState } from 'recoil'
 import { didState } from '../state'
 import { BearerDid } from '@web5/dids'
-import { mockProviderDids } from '../mocks/mocks'
 import { Exchange } from '@tbdex/http-client'
 import { ExchangesContext } from './ExchangesContext'
+import { pfiAllowlist } from '../workshop/allowlist'
+
 
 
 async function loadExchanges(did: BearerDid): Promise<Exchange[]> {
   const fetchedExchanges = []
-  const pfis = [
-    mockProviderDids.pfi_1.uri,
-    mockProviderDids.pfi_2.uri,
-    mockProviderDids.pfi_3.uri,
-  ]
+  const pfis = pfiAllowlist.map(item => item.pfiUri)
   for (const pfiUri of pfis) {
     try {
       const exchanges = await fetchExchanges({ didState: did, pfiUri })
@@ -34,7 +31,7 @@ async function loadExchanges(did: BearerDid): Promise<Exchange[]> {
   return fetchedExchanges.flatMap(exchanges => exchanges)
 }
 
-export function Exchanges() {
+export function  Exchanges() {
   const { exchangesUpdated, setExchangesUpdated } = useContext(ExchangesContext)
   const [exchanges, setExchanges] = useState(undefined)
   const [selectedExchange, setSelectedExchange] = useState()
@@ -73,7 +70,7 @@ export function Exchanges() {
       init()
       const pollIntervalId = setInterval(async () => {
         init()
-      }, 2000)
+      }, 5000)
       return () => clearInterval(pollIntervalId)
     }
   }, [did])

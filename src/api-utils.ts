@@ -20,8 +20,6 @@ export type ClientExchange = {
 // 0. Get credential from issuer
 export async function getCredentialFromIssuer(params: { subjectDid: string, data: Record<string, unknown> }) {
   const { subjectDid, data } = params
-  console.log('The params', params)
-  console.log('The data', data)
   // call api and return the credential
   const credential =  await fetch(
                 `http://localhost:9000/vc?name=${data.customerName}&country=${data.country}&did=${subjectDid}`,
@@ -87,11 +85,13 @@ export function isMatchingOffering(offering: Offering, credentials: string[]) {
 // 5. Fetch exchanges between a given user and a given PFI
 export async function fetchExchanges(params: {didState: BearerDid, pfiUri: string }) {
   const { didState, pfiUri } = params
+  console.log('params', didState, pfiUri)
   try {
     const exchanges = await TbdexHttpClient.getExchanges({
       pfiDid: pfiUri,
       did: didState
     })
+    console.log('returned exchanges', exchanges);
     const mappedExchanges = exchanges.map(exchange => {
       const latestMessage = exchange[exchange.length - 1]
       const rfqMessage = exchange.find(message => message.kind === 'rfq')
@@ -121,7 +121,7 @@ export async function fetchExchanges(params: {didState: BearerDid, pfiUri: strin
 
 export function generateExchangeStatusValues(exchangeMessage) {
   if (exchangeMessage instanceof Close) {
-    if (exchangeMessage.data.reason.toLowerCase().includes('complete')) {
+    if (exchangeMessage.data.reason.toLowerCase().includes('complete') || exchangeMessage.data.reason.toLowerCase().includes('success') ) {
       return 'completed'
     } else if (exchangeMessage.data.reason.toLowerCase().includes('expired')) {
       return 'expired'
@@ -158,6 +158,7 @@ export function renderOrderStatus (exchange) {
 }
 
 export async function createExchange(opts: SendRfqOptions) {
+  console.log('pased options', opts)
   return await sendRFQ({ ...opts })
 }
 

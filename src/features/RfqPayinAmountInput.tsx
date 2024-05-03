@@ -16,12 +16,12 @@ type PayinAmountInputProps = {
 export function PayinAmountInput(props: PayinAmountInputProps) {
   const { offering } = useContext(RfqContext)
 
-  const payinCurrency = offering.data.payinCurrency.currencyCode
-  const payoutCurrency = offering.data.payoutCurrency.currencyCode
+  const payinCurrency = offering.data.payin.currencyCode
+  const payoutCurrency = offering.data.payout.currencyCode
 
   const handlePayinAmountChange = (payinAmount: string) => {
     const formattedPayinAmount = formatUnits(payinAmount, 8)
-  
+
     props.setCurrentPayinAmount(formattedPayinAmount)
     props.setCurrentPayoutAmount(
       convertToBaseUnits(formattedPayinAmount, offering.data.payoutUnitsPerPayinUnit)
@@ -52,7 +52,7 @@ export function PayinAmountInput(props: PayinAmountInputProps) {
             autoComplete='off'
           />
           <p className='pr-1 mb-1 text-gray-400 text-xl'>{payinCurrency}</p>
-        </div>        
+        </div>
       </div>
 
       <div className="relative mt-3 rounded-md shadow-sm">
@@ -68,14 +68,14 @@ export function PayinAmountInput(props: PayinAmountInputProps) {
             readOnly
           />
           <p className='pr-1 mb-1 text-gray-400 text-xl'>{payoutCurrency}</p>
-        </div>   
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-0.5 mt-5 rounded-md p-3 text-xs">
         <p className="text-left text-gray-400">Est. rate</p>
         <p className="text-right w-[130%] ml-[-30%] text-gray-400">{getExchangeRate(offering.data.payoutUnitsPerPayinUnit, payinCurrency, payoutCurrency)}</p>
         <p className="text-left text-gray-400 mt-2">Total</p>
-        <p className="text-right text-gray-400 mt-2">{props.currentPayinAmount ? `${TBD(props.currentPayinAmount).format()} ${payinCurrency}` : `0.00 ${payinCurrency}`}</p> 
+        <p className="text-right text-gray-400 mt-2">{props.currentPayinAmount ? `${TBD(props.currentPayinAmount).format()} ${payinCurrency}` : `0.00 ${payinCurrency}`}</p>
       </div>
     </div>
   )

@@ -1,9 +1,9 @@
 /* Use `TbdexHttpClient` to access convenience methods for creating and sending messages */
 
-import { Close, Order, Rfq, TbdexHttpClient, CloseData, RfqData } from '@tbdex/http-client'
+import { Close, Order, Rfq, TbdexHttpClient, CloseData, CreateRfqData } from '@tbdex/http-client'
 import { BearerDid } from '@web5/dids'
 
-export type SendRfqOptions = RfqData & {
+export type SendRfqOptions = CreateRfqData & {
   didState: BearerDid,
   pfiUri: string
 }
@@ -25,28 +25,27 @@ export async function sendRFQ(opts: SendRfqOptions) {
     didState,
     pfiUri,
     offeringId,
-    payinMethod,
-    payinAmount,
-    payoutMethod,
+    payin,
+    payout,
     claims
   } = opts
   const rfq = Rfq.create(
     {
       metadata: {
         from: didState.uri,
-        to: pfiUri
+        to: pfiUri,
+        protocol: '1.0'
       },
       data: {
         offeringId,
-        payinMethod,
-        payinAmount,
-        payoutMethod,
+        payin,
+        payout,
         claims
       }
     }
   )
   await rfq.sign(didState)
-  return await TbdexHttpClient.sendMessage({ message: rfq })
+  return await TbdexHttpClient.createExchange(rfq)
 }
 
 export async function sendOrder(opts: SendOrderOptions) {
@@ -65,7 +64,7 @@ export async function sendOrder(opts: SendOrderOptions) {
     }
   )
   await order.sign(didState)
-  return await TbdexHttpClient.sendMessage({ message: order })
+  return await TbdexHttpClient.submitOrder(order)
 }
 
 export async function sendClose(opts: SendCloseOptions) {
@@ -88,5 +87,5 @@ export async function sendClose(opts: SendCloseOptions) {
     }
   )
   await close.sign(didState)
-  return await TbdexHttpClient.sendMessage({ message: close })
+  return await TbdexHttpClient.submitClose(close)
 }

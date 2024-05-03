@@ -24,7 +24,6 @@ export function Offerings() {
         const fetchedOfferings: Offering[][] = []
         for (const pfi of pfiAllowlist) {
           const offering = await fetchOfferings(pfi.pfiUri)
-          
           fetchedOfferings.push(offering)
         }
         setOfferings(fetchedOfferings.flatMap(offering => offering))
@@ -53,7 +52,7 @@ export function Offerings() {
         <p className="truncate text-xs leading-5 text-gray-500">There was an error trying to loading offerings.</p>
       </div>
     )
-  } 
+  }
 
 
   return (
@@ -92,7 +91,7 @@ export function Offerings() {
                       {offering.data.description}
                     </p>
                     <p className="truncate text-xs leading-5 text-gray-500">
-                      {offering.data.payoutUnitsPerPayinUnit} {offering.data.payoutCurrency.currencyCode} for 1 {offering.data.payinCurrency.currencyCode}
+                      {offering.data.payoutUnitsPerPayinUnit} {offering.data.payout.currencyCode} for 1 {offering.data.payin.currencyCode}
                     </p>
                   </div>
                 </div>
