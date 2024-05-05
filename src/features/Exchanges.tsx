@@ -70,7 +70,7 @@ export function  Exchanges() {
       init()
       const pollIntervalId = setInterval(async () => {
         init()
-      }, 5000)
+      }, 2000)
       return () => clearInterval(pollIntervalId)
     }
   }, [did])

@@ -21,7 +21,6 @@ export function RfqModal(props: RfqModalProps) {
   const [did] = useRecoilState(didState)
 
   const submitRfq = async () => {
-    console.log('THe Did', did)
     await createExchange({
       pfiUri: offering.metadata.from,
       offeringId: offering.id,

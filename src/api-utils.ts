@@ -85,13 +85,11 @@ export function isMatchingOffering(offering: Offering, credentials: string[]) {
 // 5. Fetch exchanges between a given user and a given PFI
 export async function fetchExchanges(params: {didState: BearerDid, pfiUri: string }) {
   const { didState, pfiUri } = params
-  console.log('params', didState, pfiUri)
   try {
     const exchanges = await TbdexHttpClient.getExchanges({
       pfiDid: pfiUri,
       did: didState
     })
-    console.log('returned exchanges', exchanges);
     const mappedExchanges = exchanges.map(exchange => {
       const latestMessage = exchange[exchange.length - 1]
       const rfqMessage = exchange.find(message => message.kind === 'rfq')
@@ -109,7 +107,7 @@ export async function fetchExchanges(params: {didState: BearerDid, pfiUri: strin
         createdTime: rfqMessage.createdAt,
         ...latestMessage.kind === 'quote' && {expirationTime: quoteMessage.data['expiresAt'] ?? null},
         from: 'You',
-        to: rfqMessage.data['payoutMethod']?.paymentDetails.address,
+        to: rfqMessage.privateData?.payout.paymentDetails?.address,
         pfiDid: rfqMessage.metadata.to
       }
     })
@@ -158,7 +156,6 @@ export function renderOrderStatus (exchange) {
 }
 
 export async function createExchange(opts: SendRfqOptions) {
-  console.log('pased options', opts)
   return await sendRFQ({ ...opts })
 }
 
