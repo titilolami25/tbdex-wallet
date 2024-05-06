@@ -27,6 +27,17 @@ export function ReviewPage(props: ReviewPageProps) {
     props.onSubmit()
   }
 
+  const getPaymentDetailsDisplay = () => {
+    // Checks and formats the available payment details into a readable string
+    const details = []
+    if (paymentDetails?.address) details.push(`${paymentDetails.address}`)
+    if (paymentDetails?.accountNumber) details.push(`Account Number: ${paymentDetails.accountNumber}`)
+    if (paymentDetails?.bankName) details.push(`Bank Name: ${paymentDetails.bankName}`)
+
+    // Returns either the concatenated string of details or a default message
+    return details.length > 0 ? details.join(', ') : 'No payment details provided'
+  }
+
   return (
     <>
       <p className='text-xs mt-2 px-3'>Make sure to check the amount and delivery info before sending.</p>
@@ -44,7 +55,7 @@ export function ReviewPage(props: ReviewPageProps) {
         <div className='text-xs font-small px-3'>
           <p className='text-white'>{offering.data.payout.methods[0].kind}</p>
         </div>
-        <p className='text-xs px-3 mt-1'>{paymentDetails.address}</p>
+        <p className='text-xs px-3 mt-1'>{getPaymentDetailsDisplay()}</p>
       </div>
 
       <div className="mx-8 fixed inset-x-0 bottom-6 z-10 flex justify-center">

@@ -97,6 +97,7 @@ export async function fetchExchanges(params: {didState: BearerDid, pfiUri: strin
       const status = generateExchangeStatusValues(latestMessage)
       const fee = quoteMessage?.data['payin']?.['fee']
       const payinAmount = quoteMessage?.data['payin']?.['amount']
+      const payoutPaymentDetails = rfqMessage.privateData?.payout.paymentDetails
       return {
         id: latestMessage.metadata.exchangeId,
         payinAmount: (fee ? Number(payinAmount) + Number(fee) : Number(payinAmount)).toString() || rfqMessage.data['payinAmount'],
@@ -107,7 +108,7 @@ export async function fetchExchanges(params: {didState: BearerDid, pfiUri: strin
         createdTime: rfqMessage.createdAt,
         ...latestMessage.kind === 'quote' && {expirationTime: quoteMessage.data['expiresAt'] ?? null},
         from: 'You',
-        to: rfqMessage.privateData?.payout.paymentDetails?.address,
+        to: payoutPaymentDetails?.address || payoutPaymentDetails?.accountNumber + ', ' + payoutPaymentDetails?.bankName || 'Unknown',
         pfiDid: rfqMessage.metadata.to
       }
     })
