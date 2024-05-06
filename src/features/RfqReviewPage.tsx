@@ -33,6 +33,8 @@ export function ReviewPage(props: ReviewPageProps) {
     if (paymentDetails?.address) details.push(`${paymentDetails.address}`)
     if (paymentDetails?.accountNumber) details.push(`Account Number: ${paymentDetails.accountNumber}`)
     if (paymentDetails?.bankName) details.push(`Bank Name: ${paymentDetails.bankName}`)
+    if (paymentDetails?.phoneNumber) details.push(`Phone Number: ${paymentDetails.phoneNumber}`)
+    if (paymentDetails?.networkProvider) details.push(`Network Provider: ${paymentDetails.networkProvider}`)
 
     // Returns either the concatenated string of details or a default message
     return details.length > 0 ? details.join(', ') : 'No payment details provided'

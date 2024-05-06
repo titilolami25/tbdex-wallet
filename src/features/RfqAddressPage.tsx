@@ -8,7 +8,9 @@ type RecipientPayoutFormProps = {
     properties: {
       address?: { title: string },
       accountNumber?: { title: string },
-      bankName?: { title: string }
+      bankName?: { title: string },
+      phoneNumber?: { title: string },
+      networkProvider?: { title: string },
     }
   },
   onBack: () => void,
@@ -59,12 +61,12 @@ export function RfqAddressPage(props: RecipientPayoutFormProps) {
         <>
           <label className="sr-only" htmlFor="accountNumber">Account Number</label>
           <input
-            type="text"
+            type="number"
             id="accountNumber"
             name="accountNumber"
             className="block w-full rounded-md border-0 py-1.5 pr-12 text-white bg-transparent focus:ring-transparent placeholder:text-gray-400 text-sm sm:leading-6"
             placeholder={props.schema.properties.accountNumber.title}
-            onChange={(e) => handleInputChange('accountNumber', e.target.value)}
+            onChange={(e) => handleInputChange('accountNumber', e.target.value.replace(/[^0-9]/g, ''))}
             autoComplete='off'
           />
         </>
@@ -79,6 +81,34 @@ export function RfqAddressPage(props: RecipientPayoutFormProps) {
             className="block w-full rounded-md border-0 py-1.5 pr-12 text-white bg-transparent focus:ring-transparent placeholder:text-gray-400 text-sm sm:leading-6"
             placeholder={props.schema.properties.bankName.title}
             onChange={(e) => handleInputChange('bankName', e.target.value)}
+            autoComplete='off'
+          />
+        </>
+      )}
+      {props.schema.properties.phoneNumber && (
+        <>
+          <label className="sr-only" htmlFor="phoneNumber">Phone Number</label>
+          <input
+            type="tel" // Recommended for phone numbers for better mobile support
+            id="phoneNumber"
+            name="phoneNumber"
+            className="block w-full rounded-md border-0 py-1.5 pr-12 text-white bg-transparent focus:ring-transparent placeholder:text-gray-400 text-sm sm:leading-6"
+            placeholder={props.schema.properties.phoneNumber.title}
+            onChange={(e) => handleInputChange('phoneNumber', e.target.value.replace(/[^0-9]/g, ''))}
+            autoComplete='off'
+          />
+        </>
+      )}
+      {props.schema.properties.networkProvider && (
+        <>
+          <label className="sr-only" htmlFor="networkProvider">Network Provider</label>
+          <input
+            type="text"
+            id="networkProvider"
+            name="networkProvider"
+            className="block w-full rounded-md border-0 py-1.5 pr-12 text-white bg-transparent focus:ring-transparent placeholder:text-gray-400 text-sm sm:leading-6"
+            placeholder={props.schema.properties.networkProvider.title}
+            onChange={(e) => handleInputChange('networkProvider', e.target.value)}
             autoComplete='off'
           />
         </>
