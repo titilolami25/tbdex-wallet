@@ -22,10 +22,10 @@ export const pfiAllowlist: PfiAllowlistConfig[] = [
   },
   {
     pfiUri: mockProviderDids.pfi_4.uri,
-    pfiName: 'Dummy YellowCard'
+    pfiName: 'YellowCard Sandbox'
   },
   {
     pfiUri: mockProviderDids.pfi_5.uri,
-    pfiName: 'Circle Sandbox'
+    pfiName: 'Ace Sandbox'
   }
 ]

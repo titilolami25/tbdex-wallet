@@ -45,7 +45,7 @@ export function renderCredential(credentialJwt: string) {
   return {
     title: vc.type[vc.type.length - 1].replace(/(?<!^)(?<![A-Z])[A-Z](?=[a-z])/g, ' $&'), // get the last credential type in the array and format it with spaces
     name: vc.credentialSubject['name'],
-    countryCode: vc.credentialSubject['country'],
+    countryCode: vc.credentialSubject['countryOfResidence'],
     issuanceDate: new Date(vc.issuanceDate).toLocaleDateString(undefined, {dateStyle: 'medium'}),
   }
 }
