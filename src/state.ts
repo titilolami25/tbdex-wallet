@@ -1,7 +1,5 @@
 import { atom, DefaultValue } from 'recoil'
 import { DidDht, BearerDid } from '@web5/dids'
-import { getCredentialFromIssuer } from './api-utils'
-
 
 // Atom to hold the DID
 export const didState = atom<BearerDid | null>({

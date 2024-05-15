@@ -1,6 +1,7 @@
 import { BearerDid } from '@web5/dids'
 import { Close, Offering, TbdexHttpClient } from '@tbdex/http-client'
 import { Jwt, VcDataModel } from '@web5/credentials'
+import { PresentationExchange } from '@web5/credentials'
 
 
 export type ClientExchange = {
@@ -65,29 +66,24 @@ export async function fetchOfferings(pfiUri: string) {
 // 4. Filter offerings based on which credentials the user has to satisfy the requirements.
 export function isMatchingOffering(offering: Offering, credentials: string[]) {
   if (credentials.length === 0) return
-  const vc: Partial<VcDataModel> = Jwt.parse({ jwt: credentials[0] }).decoded.payload['vc']
-  let matches = 0
-  for (const field of offering.data.requiredClaims.input_descriptors[0].constraints.fields) {
-    for (const key in vc.credentialSubject) {
-      if (field.path.includes(`$.credentialSubject.${key}`)) {
-          matches++
-      }
-    }
-    if (field.path.includes(`$.issuer`) && vc.issuer && field.filter.const == vc.issuer) {
-      matches++
-    }
-    if (field.path.includes(`$.type[*]`) && vc.type && vc.type.includes(field.filter.const.toString())) {
-      matches++
-    }
+
+  try {
+    // Validate customer's VCs against the offering's presentation definition
+    PresentationExchange.satisfiesPresentationDefinition({
+      vcJwts: credentials,
+      presentationDefinition: offering.data.requiredClaims,
+    })
+    return true
+  } catch (e) {
+    return false
   }
-  return matches == Object.keys(offering.data.requiredClaims.input_descriptors[0].constraints.fields).length
 }
 
 // 5. Fetch exchanges between a given user and a given PFI
 export async function fetchExchanges(params: {didState: BearerDid, pfiUri: string }) {
   const { didState, pfiUri } = params
   try {
-    // TODO: Fetch exchanges from the PFI
+    // TODO 9: Fetch exchanges from the PFI
     const exchanges = await TbdexHttpClient.getExchanges({
       pfiDid: pfiUri,
       did: didState

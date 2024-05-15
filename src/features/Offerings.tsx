@@ -8,8 +8,6 @@ import bitcoinIcon from '../assets/bitcoin.svg'
 import { Offering } from '@tbdex/http-client'
 import { pfiAllowlist } from '../workshop/allowlist.ts'
 
-
-
 export function Offerings() {
   const [offerings, setOfferings] = useState<Offering[]>(undefined)
   const [selectedOffering, setSelectedOffering] = useState<string | undefined>()

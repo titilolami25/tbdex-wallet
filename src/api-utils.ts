@@ -17,7 +17,6 @@ export type ClientExchange = {
   to: string,
   pfiDid: string
 }
-// 0. Get credential from issuer
 export async function getCredentialFromIssuer(params: { subjectDid: string, data: Record<string, unknown> }) {
   const { subjectDid, data } = params
   // call api and return the credential
@@ -27,7 +26,6 @@ export async function getCredentialFromIssuer(params: { subjectDid: string, data
   return credential
 }
 
-// 1. Set up credential flow by requesting credential from an issuer
 export async function requestCredentialFromIssuer(didUri, customerName, country) {
   const credential = await getCredentialFromIssuer({
     subjectDid: didUri,
@@ -39,7 +37,6 @@ export async function requestCredentialFromIssuer(didUri, customerName, country)
   return credential
 }
 
-// 2. Render the credential you obtained from the issuer.
 export function renderCredential(credentialJwt: string) {
   const vc: Partial<VcDataModel> = Jwt.parse({ jwt: credentialJwt }).decoded.payload['vc']
   return {
@@ -50,20 +47,15 @@ export function renderCredential(credentialJwt: string) {
   }
 }
 
-// 3. Fetch offerings from a given PFI to choose from.
 export async function fetchOfferings(pfiUri: string) {
   try {
-    // TODO: Fetch offerings from the PFI
-    const offerings = await TbdexHttpClient.getOfferings({
-      pfiDid: pfiUri
-    })
-    return offerings
+    // TODO 2: Fetch offerings from the PFI
+
   } catch (e) {
     throw new Error(`Error fetching offerings for ${pfiUri}: ${e}`)
   }
 }
 
-// 4. Filter offerings based on which credentials the user has to satisfy the requirements.
 export function isMatchingOffering(offering: Offering, credentials: string[]) {
   if (credentials.length === 0) return
 
@@ -77,33 +69,13 @@ export function isMatchingOffering(offering: Offering, credentials: string[]) {
   } catch (e) {
     return false
   }
-  const vc: Partial<VcDataModel> = Jwt.parse({ jwt: credentials[0] }).decoded.payload['vc']
-  let matches = 0
-  for (const field of offering.data.requiredClaims.input_descriptors[0].constraints.fields) {
-    for (const key in vc.credentialSubject) {
-      if (field.path.includes(`$.credentialSubject.${key}`)) {
-          matches++
-      }
-    }
-    if (field.path.includes(`$.issuer`) && vc.issuer && field.filter.const == vc.issuer) {
-      matches++
-    }
-    if (field.path.includes(`$.type[*]`) && vc.type && vc.type.includes(field.filter.const.toString())) {
-      matches++
-    }
-  }
-  return matches == Object.keys(offering.data.requiredClaims.input_descriptors[0].constraints.fields).length
 }
 
-// 5. Fetch exchanges between a given user and a given PFI
 export async function fetchExchanges(params: {didState: BearerDid, pfiUri: string }) {
   const { didState, pfiUri } = params
   try {
-    // TODO: Fetch exchanges from the PFI
-    const exchanges = await TbdexHttpClient.getExchanges({
-      pfiDid: pfiUri,
-      did: didState
-    })
+    // TODO 9: get exchanges from the PFI
+
     const mappedExchanges = exchanges.map(exchange => {
       const latestMessage = exchange[exchange.length - 1]
       const rfqMessage = exchange.find(message => message.kind === 'rfq')

@@ -21,11 +21,29 @@ export function RfqModal(props: RfqModalProps) {
   const [credentials] = useRecoilState(credentialsState)
   const [did] = useRecoilState(didState)
 
-  // TODO 3: Choose only needed credentials to present using PresentationExchange.selectCredentials
+  const selectedCredentials = PresentationExchange.selectCredentials({
+    vcJwts: credentials,
+    presentationDefinition: offering.data.requiredClaims,
+  })
 
   const submitRfq = async () => {
-    // TODO 4: Create an exchange calling the createExchange function on messageUtils
-
+    // TODO 3: Create an exchange calling the createExchange function on messageUtils
+    await createExchange({
+      pfiUri: offering.metadata.from,
+      offeringId: offering.id,
+      payin: {
+        amount: payinAmount,
+        kind: offering.data.payin.methods[0].kind,
+        paymentDetails: {}
+      },
+      payout: {
+        kind: offering.data.payout.methods[0].kind,
+        paymentDetails
+      },
+      claims: selectedCredentials,
+      didState: did,
+      offering
+    })
     setExchangesUpdated(true)
     props.onClose()
   }

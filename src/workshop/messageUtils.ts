@@ -32,29 +32,21 @@ export async function createExchange(opts: SendRfqOptions) {
     claims,
     offering
   } = opts
-  const rfq = Rfq.create(
-    {
-      metadata: {
-        from: didState.uri,
-        to: pfiUri,
-        protocol: '1.0'
-      },
-      data: {
-        offeringId,
-        payin,
-        payout,
-        claims
-      }
-    }
-  )
+
+  // TODO 5: Create RFQ message
+
+
+
   try{
-    rfq.verifyOfferingRequirements(offering)
+    // TODO 6: Verify offering requirements with RFQ - rfq.verifyOfferingRequirements(offering)
   } catch (e) {
     // handle failed verification
     console.log('Offering requirements not met', e)
   }
-  await rfq.sign(didState)
-  return await TbdexHttpClient.createExchange(rfq)
+
+  // TODO 7: Sign RFQ message
+
+  // TODO 8: Submit RFQ message to the PFI .createExchange(rfq)
 }
 
 export async function addOrder(opts: SendOrderOptions) {
@@ -63,17 +55,7 @@ export async function addOrder(opts: SendOrderOptions) {
     pfiUri,
     exchangeId
   } = opts
-  const order = Order.create(
-    {
-      metadata: {
-        from: didState.uri,
-        to: pfiUri,
-        exchangeId
-      },
-    }
-  )
-  await order.sign(didState)
-  return await TbdexHttpClient.submitOrder(order)
+  // TODO 11: Create Order message, sign it, and submit it to the PFI
 }
 
 export async function addClose(opts: SendCloseOptions) {
@@ -83,18 +65,6 @@ export async function addClose(opts: SendCloseOptions) {
     exchangeId,
     reason
   } = opts
-  const close = Close.create(
-    {
-      metadata: {
-        from: didState.uri,
-        to: pfiUri,
-        exchangeId
-      },
-      data: {
-        reason
-      }
-    }
-  )
-  await close.sign(didState)
-  return await TbdexHttpClient.submitClose(close)
+
+  // TODO 10: Create Close message, sign it, and submit it to the PFI
 }

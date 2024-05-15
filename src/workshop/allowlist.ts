@@ -1,11 +1,11 @@
-/* Use `mockProviderDids` to access PFIs and their DID URIs */
-
 import { mockProviderDids } from '../mocks/mocks'
 
 export interface PfiAllowlistConfig {
   pfiUri: string,
   pfiName: string
 }
+
+// TODO 1: Choose the PFIs you want as part of your listings
 
 export const pfiAllowlist: PfiAllowlistConfig[] = [
   {

@@ -1,12 +1,15 @@
-import { Close, Order, Rfq, TbdexHttpClient, CloseData, RfqData, OrderData } from '@tbdex/http-client'
+/* Use `TbdexHttpClient` to access convenience methods for creating and sending messages */
+
+import { Close, Order, Rfq, TbdexHttpClient, CloseData, CreateRfqData, Offering } from '@tbdex/http-client'
 import { BearerDid } from '@web5/dids'
 
-export type SendRfqOptions = RfqData & {
+export type SendRfqOptions = CreateRfqData & {
   didState: BearerDid,
+  offering: Offering,
   pfiUri: string
 }
 
-export type SendOrderOptions = OrderData & {
+export type SendOrderOptions = {
   exchangeId: string,
   didState: BearerDid,
   pfiUri: string
@@ -18,67 +21,80 @@ export type SendCloseOptions = CloseData & {
   pfiUri: string
 }
 
-export async function sendRFQ(opts: SendRfqOptions) {
-  const {
-    offeringId,
-    payinAmount,
-    payinMethod,
-    payoutMethod,
-    claims,
-    didState,
-    pfiUri
-  } = opts
-  const message = Rfq.create({
-    data: {
-      offeringId,
-      payinAmount,
-      payinMethod,
-      payoutMethod,
-      claims
-    },
-    metadata: {
-      from: didState.uri,
-      to: pfiUri
-    }
-  })
-  await message.sign(didState)
-  return await TbdexHttpClient.sendMessage({ message })
-}
+export async function createExchange(opts: SendRfqOptions) {
 
-export async function sendOrder(opts: SendOrderOptions) {
   const {
-    exchangeId,
-    didState,
-    pfiUri
-  } = opts
-  const message = Order.create({
-    metadata: {
-      exchangeId: exchangeId,
-      from: didState.uri,
-      to: pfiUri
-    }
-  })
-  await message.sign(didState)
-  return await TbdexHttpClient.sendMessage({ message })
-}
-
-export async function sendClose(opts: SendCloseOptions) {
-  const {
-    exchangeId,
     didState,
     pfiUri,
+    offeringId,
+    payin,
+    payout,
+    claims,
+    offering
+  } = opts
+  const rfq = Rfq.create(
+    {
+      metadata: {
+        from: didState.uri,
+        to: pfiUri,
+        protocol: '1.0'
+      },
+      data: {
+        offeringId,
+        payin,
+        payout,
+        claims
+      }
+    }
+  )
+  try{
+    rfq.verifyOfferingRequirements(offering)
+  } catch (e) {
+    // handle failed verification
+    console.log('Offering requirements not met', e)
+  }
+  await rfq.sign(didState)
+  return await TbdexHttpClient.createExchange(rfq)
+}
+
+export async function addOrder(opts: SendOrderOptions) {
+  const {
+    didState,
+    pfiUri,
+    exchangeId
+  } = opts
+  const order = Order.create(
+    {
+      metadata: {
+        from: didState.uri,
+        to: pfiUri,
+        exchangeId
+      },
+    }
+  )
+  await order.sign(didState)
+  return await TbdexHttpClient.submitOrder(order)
+}
+
+export async function addClose(opts: SendCloseOptions) {
+  const {
+    didState,
+    pfiUri,
+    exchangeId,
     reason
   } = opts
-  const message = Close.create({
-    metadata: {
-      exchangeId: exchangeId,
-      from: didState.uri,
-      to: pfiUri
-    },
-    data: {
-      reason
+  const close = Close.create(
+    {
+      metadata: {
+        from: didState.uri,
+        to: pfiUri,
+        exchangeId
+      },
+      data: {
+        reason
+      }
     }
-  })
-  await message.sign(didState)
-  return await TbdexHttpClient.sendMessage({ message })
+  )
+  await close.sign(didState)
+  return await TbdexHttpClient.submitClose(close)
 }
