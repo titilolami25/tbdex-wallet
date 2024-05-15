@@ -27,7 +27,6 @@ export function PayinPage(props: SetQuoteAmountFormProps) {
 
   const needsCredential = !isMatchingOffering(offering, credentials)
 
-
   const minPayinAmount = offering.data.payin.min ? TBD(offering.data.payin.min).value : 0.01
   const maxPayinAmount = offering.data.payin.max ? TBD(offering.data.payin.max).value : accountBalance || 5
 

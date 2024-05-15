@@ -1,6 +1,5 @@
 import { BearerDid } from '@web5/dids'
 import { Close, Offering, TbdexHttpClient } from '@tbdex/http-client'
-import { SendCloseOptions, SendOrderOptions, SendRfqOptions, sendOrder, sendRFQ, sendClose } from './workshop/messageUtils'
 import { Jwt, VcDataModel } from '@web5/credentials'
 
 
@@ -53,17 +52,19 @@ export function renderCredential(credentialJwt: string) {
 // 3. Fetch offerings from a given PFI to choose from.
 export async function fetchOfferings(pfiUri: string) {
   try {
+    // TODO: Fetch offerings from the PFI
     const offerings = await TbdexHttpClient.getOfferings({
       pfiDid: pfiUri
     })
     return offerings
   } catch (e) {
-    throw new Error(`Error fetching offerings: ${e}`)
+    throw new Error(`Error fetching offerings for ${pfiUri}: ${e}`)
   }
 }
 
 // 4. Filter offerings based on which credentials the user has to satisfy the requirements.
 export function isMatchingOffering(offering: Offering, credentials: string[]) {
+  if (credentials.length === 0) return
   const vc: Partial<VcDataModel> = Jwt.parse({ jwt: credentials[0] }).decoded.payload['vc']
   let matches = 0
   for (const field of offering.data.requiredClaims.input_descriptors[0].constraints.fields) {
@@ -86,6 +87,7 @@ export function isMatchingOffering(offering: Offering, credentials: string[]) {
 export async function fetchExchanges(params: {didState: BearerDid, pfiUri: string }) {
   const { didState, pfiUri } = params
   try {
+    // TODO: Fetch exchanges from the PFI
     const exchanges = await TbdexHttpClient.getExchanges({
       pfiDid: pfiUri,
       did: didState
@@ -154,16 +156,4 @@ export function renderOrderStatus (exchange) {
     default:
       return 'Unknown status'
   }
-}
-
-export async function createExchange(opts: SendRfqOptions) {
-  return await sendRFQ({ ...opts })
-}
-
-export async function addOrder(opts: SendOrderOptions) {
-  return await sendOrder({ ...opts })
-}
-
-export async function addClose(opts: SendCloseOptions) {
-  return await sendClose({ ...opts })
 }

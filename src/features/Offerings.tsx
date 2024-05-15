@@ -64,11 +64,7 @@ export function Offerings() {
           {offerings.map((offering, ind) => (
             <li key={ind} className="py-1">
               <button
-                // className={`w-full h-full rounded-lg px-4 py-1 flex ${
-                //   isMatchingOffering(offering, credentials)
-                //     ? 'hover:bg-neutral-600/20'
-                //     : 'opacity-50'
-                // }`}
+                className={`w-full h-full rounded-lg px-4 py-1 flex`}
                 onClick={() => handleModalOpen(offering)}
               >
                 <div className="flex items-center flex-grow pr-2">
