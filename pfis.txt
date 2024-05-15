@@ -3,6 +3,7 @@ MOCK PFI Info Doc
 The following PFIs are mocked when you run the PFI repo you cloned. The PFIs are created with the following information:
 
 ## AquaFinance Capital
+Gets sandbox TBDollars offerings for testing.
 did:dht:qewzcx3fj8uuq7y551deqdfd1wbe6ymicr8xnua3xzkdw4n6j3bo
 
 ## SwiftLiquidity Solutions
