@@ -63,7 +63,7 @@ export function ExchangeItem(props: ExchangeItemProps) {
                 {removeTrailingZeros(money(props.exchange.payoutAmount).format())} {props.exchange.payoutCurrency}
               </div>
             </>
-          ) : 
+          ) :
             <div className="w-1/5 text-xs font-medium leading-6 text-right pt-2 mr-1 text-neutral-100"></div>
           }
         </button>
@@ -75,21 +75,21 @@ export function ExchangeItem(props: ExchangeItemProps) {
 const getStatusString = (exchange) => {
   switch (exchange.status) {
     case 'rfq':
-      return `Requested ${money(exchange.payinAmount).format()} TBD`
+      return `Requested ${money(exchange.payinAmount).format()} ${exchange.payinCurrency}`
     case 'quote':
-      return `Quoted ${money(exchange.payinAmount).format()} TBD`
+      return `Quoted ${money(exchange.payinAmount).format()} ${exchange.payinCurrency}`
     case 'order':
-      return `Payment for ${money(exchange.payinAmount).format()} TBD submitted`
+      return `Payment for ${money(exchange.payinAmount).format()} ${exchange.payinCurrency} submitted`
     case 'orderstatus':
-      return `Payment processing for ${money(exchange.payinAmount).format()} TBD...`
+      return `Payment processing for ${money(exchange.payinAmount).format()} ${exchange.payinCurrency}...`
     case 'completed':
-      return `Sent ${money(exchange.payinAmount).format()} TBD`
+      return `Sent ${money(exchange.payinAmount).format()} ${exchange.payinCurrency}`
     case 'expired':
-      return `Quote for ${money(exchange.payinAmount).format()} TBD expired`
+      return `Quote for ${money(exchange.payinAmount).format()} ${exchange.payinCurrency} expired`
     case 'cancelled':
-      return `Exchange for ${money(exchange.payinAmount).format()} TBD was cancelled`
+      return `Exchange for ${money(exchange.payinAmount).format()} ${exchange.payinCurrency} was cancelled`
     case 'failed':
-      return `Payment for ${money(exchange.payinAmount).format()} TBD failed`
+      return `Payment for ${money(exchange.payinAmount).format()} ${exchange.payinCurrency} failed`
     default:
       return 'Unknown status'
   }

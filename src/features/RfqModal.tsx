@@ -3,12 +3,13 @@ import { RfqContext } from './RfqContext'
 import { RfqFormIds, getRfqForms } from './RfqForms'
 import { BackButton } from '../common/BackButton'
 import { Panel } from '../common/Panel'
-import { createExchange } from '../api-utils'
+import { createExchange } from '../workshop/messageUtils'
 import '../styles/date.css'
 import { useRecoilState } from 'recoil'
 import { credentialsState, didState } from '../state'
 import { ExchangesContext } from './ExchangesContext'
 import { pfiAllowlist } from '../workshop/allowlist'
+import { PresentationExchange } from '@web5/credentials'
 
 type RfqModalProps = {
   onClose: () => void;
@@ -20,12 +21,17 @@ export function RfqModal(props: RfqModalProps) {
   const [credentials] = useRecoilState(credentialsState)
   const [did] = useRecoilState(didState)
 
+  const selectedCredentials = PresentationExchange.selectCredentials({
+    vcJwts: credentials,
+    presentationDefinition: offering.data.requiredClaims,
+  })
+
   const submitRfq = async () => {
     await createExchange({
       pfiUri: offering.metadata.from,
       offeringId: offering.id,
       payin: {
-        amount: Number(payinAmount).toFixed(2).toString(),
+        amount: payinAmount,
         kind: offering.data.payin.methods[0].kind,
         paymentDetails: {}
       },
@@ -33,8 +39,9 @@ export function RfqModal(props: RfqModalProps) {
         kind: offering.data.payout.methods[0].kind,
         paymentDetails
       },
-      claims: credentials,
-      didState: did
+      claims: selectedCredentials,
+      didState: did,
+      offering
     })
     setExchangesUpdated(true)
     props.onClose()

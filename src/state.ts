@@ -10,14 +10,14 @@ export const didState = atom<BearerDid | null>({
   effects_UNSTABLE: [
     ({ onSet, setSelf }) => {
       // Load the DID from localStorage when the atom is first used
-      const portableDid = localStorage.getItem('DID')
+      const portableDid = localStorage.getItem('DID') // Can store in key manager
       if (portableDid) {
         DidDht.import({ portableDid: JSON.parse(portableDid) }).then((bearerDid: BearerDid) => {
           setSelf(bearerDid)
         })
       } else {
         // If no DID is stored, create a new one and store it
-        DidDht.create().then(async (bearerDid: BearerDid) => {
+        DidDht.create({options: {publish: true}}).then(async (bearerDid: BearerDid) => {
           const portableDid = await bearerDid.export()
           setSelf(bearerDid)
           localStorage.setItem('DID', JSON.stringify(portableDid))
@@ -46,20 +46,9 @@ export const credentialsState = atom<string[]>({
         setSelf(JSON.parse(storedCredentials))
       }
       else {
-        if (localStorage.getItem('DID')) {
-          getCredentialFromIssuer({
-            subjectDid: JSON.parse(localStorage.getItem('DID')).uri,
-            data: {
-              countryCode: 'Earth'
-            }
-          }).then((credential) => {
-            setSelf([credential])
-            localStorage.setItem('CREDENTIALS', JSON.stringify([credential]))
-          })
-        }
+        console.log('No credentials found')
         // If no credential is found, issue one with the name "Anonymous User"
       }
-
 
       // When the credentials change, store them in localStorage
       onSet((newCredentials) => {

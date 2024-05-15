@@ -3,9 +3,12 @@ import { useRecoilState } from 'recoil'
 import { FaAddressCard } from 'react-icons/fa'
 import { useRef } from 'react'
 import { requestCredentialFromIssuer } from '../api-utils'
+import { useNavigate } from 'react-router-dom'
+
 
 
 export function GetCredentialPage() {
+  const navigate = useNavigate()
   const [did] = useRecoilState(didState)
   const [credentials, setCredentials] = useRecoilState(credentialsState)
 
@@ -16,6 +19,7 @@ export function GetCredentialPage() {
     const formData = new FormData(formRef.current)
     const credential = await requestCredentialFromIssuer(did.uri, formData.get('customerName'), formData.get('countryCode'))
     setCredentials([...credentials, credential])
+    navigate('/')
   }
 
   return (

@@ -3,17 +3,14 @@ import { ChevronRightIcon } from '@heroicons/react/24/outline'
 import { RfqModal } from './RfqModal.tsx'
 import { RfqProvider } from './RfqContext.tsx'
 import { Spinner } from '../common/Spinner.tsx'
-import { fetchOfferings, isMatchingOffering } from '../api-utils.js'
+import { fetchOfferings } from '../api-utils.js'
 import bitcoinIcon from '../assets/bitcoin.svg'
 import { Offering } from '@tbdex/http-client'
 import { pfiAllowlist } from '../workshop/allowlist.ts'
-import { credentialsState } from '../state.ts'
-import { useRecoilState } from 'recoil'
 
 
 
 export function Offerings() {
-  const [credentials] = useRecoilState(credentialsState)
   const [offerings, setOfferings] = useState<Offering[]>(undefined)
   const [selectedOffering, setSelectedOffering] = useState<string | undefined>()
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -67,13 +64,12 @@ export function Offerings() {
           {offerings.map((offering, ind) => (
             <li key={ind} className="py-1">
               <button
-                className={`w-full h-full rounded-lg px-4 py-1 flex ${
-                  isMatchingOffering(offering, credentials)
-                    ? 'hover:bg-neutral-600/20'
-                    : 'opacity-50'
-                }`}
+                // className={`w-full h-full rounded-lg px-4 py-1 flex ${
+                //   isMatchingOffering(offering, credentials)
+                //     ? 'hover:bg-neutral-600/20'
+                //     : 'opacity-50'
+                // }`}
                 onClick={() => handleModalOpen(offering)}
-                disabled={!isMatchingOffering(offering, credentials)}
               >
                 <div className="flex items-center flex-grow pr-2">
                   <div className="flex justify-center items-center w-8 h-8 mt-0.5 rounded-lg bg-neutral-600 text-white text-sm font-semibold">

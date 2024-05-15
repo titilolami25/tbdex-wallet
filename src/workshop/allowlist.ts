@@ -9,23 +9,27 @@ export interface PfiAllowlistConfig {
 
 export const pfiAllowlist: PfiAllowlistConfig[] = [
   {
-    pfiUri: mockProviderDids.pfi_1.uri,
-    pfiName: 'Bob\'s Bank'
+    pfiUri: mockProviderDids.aquafinance_capital.uri,
+    pfiName: mockProviderDids.aquafinance_capital.name,
   },
   {
-    pfiUri: mockProviderDids.pfi_2.uri,
-    pfiName: 'Alice\'s Bank'
+    pfiUri: mockProviderDids.swiftliquidity_solutions.uri,
+    pfiName: mockProviderDids.swiftliquidity_solutions.name,
   },
   {
-    pfiUri: mockProviderDids.pfi_3.uri,
-    pfiName: 'Charlie\'s Chop Shop'
+    pfiUri: mockProviderDids.flowback_financial.uri,
+    pfiName: mockProviderDids.flowback_financial.name,
   },
   {
-    pfiUri: mockProviderDids.pfi_4.uri,
-    pfiName: 'YellowCard Sandbox'
+    pfiUri: mockProviderDids.vertex_liquid_assets.uri,
+    pfiName: mockProviderDids.vertex_liquid_assets.name,
   },
   {
-    pfiUri: mockProviderDids.pfi_5.uri,
-    pfiName: 'Ace Sandbox'
+    pfiUri: mockProviderDids.titanium_trust.uri,
+    pfiName: mockProviderDids.titanium_trust.name,
   }
+  // {
+  //   pfiUri: 'did:dht:kdqnzqsoedntcfmcgrxshr7ek93ep1eznfxn1wnkreyy9reewa9o',
+  //   pfiName: 'test guy'
+  // }
 ]

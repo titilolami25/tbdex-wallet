@@ -1,13 +1,13 @@
 import { CheckCircleIcon, QuestionMarkCircleIcon, EllipsisHorizontalCircleIcon, XCircleIcon } from '@heroicons/react/20/solid'
 import { TBD } from '../currency-utils'
 import { useContext, useState } from 'react'
-import { addClose, addOrder } from '../api-utils'
+import { addClose, addOrder } from '../workshop/messageUtils'
 import { useRecoilState } from 'recoil'
 import { balanceState } from '../state'
 import { ExchangesContext } from './ExchangesContext'
 import { Spinner } from '../common/Spinner'
 
-export const renderActionButtons = (amount, exchangeId, onClose, didState, pfiUri) => {
+export const renderActionButtons = (amount, payInCurrency, exchangeId, onClose, didState, pfiUri) => {
   const { setExchangesUpdated } = useContext(ExchangesContext)
   const [isUpdating, setIsUpdating] = useState(false)
   const [accountBalance, setAccountBalance] = useRecoilState(balanceState)
@@ -17,7 +17,7 @@ export const renderActionButtons = (amount, exchangeId, onClose, didState, pfiUr
       setIsUpdating(true)
       try {
         await addOrder({ exchangeId, didState, pfiUri })
-        setAccountBalance(accountBalance - Number(amount))
+        if(payInCurrency === 'TBD') setAccountBalance(accountBalance - Number(amount))
         setExchangesUpdated(true)
       } catch (e) {
         setIsUpdating(false)
@@ -30,7 +30,6 @@ export const renderActionButtons = (amount, exchangeId, onClose, didState, pfiUr
       setIsUpdating(true)
       try {
         await addClose({ exchangeId, didState, pfiUri, reason: 'user cancelled' })
-        setAccountBalance(accountBalance - Number(amount))
         setExchangesUpdated(true)
       } catch (e) {
         setIsUpdating(false)
@@ -43,7 +42,7 @@ export const renderActionButtons = (amount, exchangeId, onClose, didState, pfiUr
   }
 
   return (
-      isUpdating ? 
+      isUpdating ?
         <div className="m-2 pl-8 pr-8 flex items-center justify-center gap-x-6">
         <Spinner></Spinner>
         </div>
@@ -91,7 +90,7 @@ const getStatusIcon = (status) => {
     case 'completed':
       return <CheckCircleIcon className="absolute h-7 w-7 text-green-500" />
     case 'failed':
-    case 'expired': 
+    case 'expired':
       return <XCircleIcon className="absolute h-7 w-7 text-red-600" />
     default:
       return <QuestionMarkCircleIcon className="absolute h-7 w-7 text-gray-500" />

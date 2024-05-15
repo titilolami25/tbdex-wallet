@@ -29,7 +29,7 @@ export function ExchangeModal(props: ExchangeModalProps) {
         <h2 className='text-xs text-gray-200'>
           { pfiAllowlist.find(pfi => pfi.pfiUri === props.exchange.pfiDid).pfiName }
         </h2>
-        {props.exchange.payinCurrency && props.exchange.payoutCurrency && 
+        {props.exchange.payinCurrency && props.exchange.payoutCurrency &&
           <p className="text-xs text-gray-500 mt-1">Exchange from {props.exchange.payinCurrency} to {props.exchange.payoutCurrency}</p>
         }
         <div className="mt-8 mb-1 text-3xl font-semibold text-gray-200">
@@ -61,7 +61,7 @@ export function ExchangeModal(props: ExchangeModalProps) {
         </div>
       </div>
 
-      {props.exchange.status === 'quote' && renderActionButtons(props.exchange.payinAmount, props.exchange.id, props.onClose, did, props.exchange.pfiDid )}
+      {props.exchange.status === 'quote' && renderActionButtons(props.exchange.payinAmount, props.exchange.payinCurrency, props.exchange.id, props.onClose, did, props.exchange.pfiDid )}
     </div>
   )
 }
