@@ -1,4 +1,4 @@
-# tbDEX ABC Wallet Workshop
+# My tbDEX Wallet Workshop
 
 ## Running the Project
 
