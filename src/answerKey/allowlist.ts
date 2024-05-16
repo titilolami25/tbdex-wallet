@@ -27,5 +27,9 @@ export const pfiAllowlist: PfiAllowlistConfig[] = [
   {
     pfiUri: mockProviderDids.titanium_trust.uri,
     pfiName: mockProviderDids.titanium_trust.name,
+  },
+  {
+    pfiUri: 'did:dht:kdqnzqsoedntcfmcgrxshr7ek93ep1eznfxn1wnkreyy9reewa9o',
+    pfiName: 'tbDEX USDC PFI'
   }
 ]

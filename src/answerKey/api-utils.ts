@@ -92,6 +92,7 @@ export async function fetchExchanges(params: {didState: BearerDid, pfiUri: strin
       const latestMessage = exchange[exchange.length - 1]
       const rfqMessage = exchange.find(message => message.kind === 'rfq')
       const quoteMessage = exchange.find(message => message.kind === 'quote')
+      console.log('quote', quoteMessage)
       const status = generateExchangeStatusValues(latestMessage)
       const fee = quoteMessage?.data['payin']?.['fee']
       const payinAmount = quoteMessage?.data['payin']?.['amount']
@@ -101,6 +102,7 @@ export async function fetchExchanges(params: {didState: BearerDid, pfiUri: strin
         payinAmount: (fee ? Number(payinAmount) + Number(fee) : Number(payinAmount)).toString() || rfqMessage.data['payinAmount'],
         payinCurrency: quoteMessage.data['payin']?.['currencyCode'] ?? null,
         payoutAmount: quoteMessage?.data['payout']?.['amount'] ?? null,
+        console.log('Quote: ', quoteMessage)
         payoutCurrency: quoteMessage.data['payout']?.['currencyCode'],
         status,
         createdTime: rfqMessage.createdAt,
