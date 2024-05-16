@@ -121,7 +121,7 @@ export function generateExchangeStatusValues(exchangeMessage) {
     if (exchangeMessage.data.reason.toLowerCase().includes('complete') || exchangeMessage.data.reason.toLowerCase().includes('success') ) {
       return 'completed'
     } else if (exchangeMessage.data.reason.toLowerCase().includes('expired')) {
-      return 'expired'
+      return exchangeMessage.data.reason.toLowerCase()
     } else if (exchangeMessage.data.reason.toLowerCase().includes('cancelled')) {
       return 'cancelled'
     } else {
