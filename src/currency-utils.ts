@@ -3,7 +3,7 @@ import currency from 'currency.js'
 export const fromCents = value => currency(value, { symbol: '', fromCents: true })
 export const money = value => currency(value, { symbol: '' })
 export const TBD = value => currency(value, { symbol: '' })
-export const BTC = value => currency(value, { symbol: '₿', precision: 8})
+export const BTC = value => currency(value, { symbol: '', precision: 8})
 export const fromSats = value => value/100_000_000
 
 export function removeTrailingZeros(inputString) {
@@ -36,7 +36,7 @@ export function getSubunits(quoteAmountUnits: string, quoteCurrencyCode: string)
     } else {
       console.error('unexpected currency code', quoteCurrencyCode)
     }
-    
+
   return subunits.toFixed(0).toString()
 }
 
@@ -48,16 +48,16 @@ export function getSubunits(quoteAmountUnits: string, quoteCurrencyCode: string)
 export function shortenAddress(address) {
   const prefixLength = 6
   const suffixLength = 4
-  
+
   if (!address || address.length <= prefixLength + suffixLength) {
     return address
   }
-  
+
   const prefix = address.substring(0, prefixLength)
   const suffix = address.substring(address.length - suffixLength)
-  
+
   const shortenedAddress = `${prefix}...${suffix}`
-  
+
   return shortenedAddress
 }
 
@@ -107,4 +107,3 @@ export function formatUnits(input: string, decimalLength: number): string {
 
   return numericValue
 }
-  

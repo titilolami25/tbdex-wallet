@@ -23,6 +23,7 @@ async function loadExchanges(did: BearerDid): Promise<Exchange[]> {
     try {
       const exchanges = await fetchExchanges({ didState: did, pfiUri })
       fetchedExchanges.push(exchanges)
+      console.log('fetched exchanges', fetchedExchanges)
     } catch (e) {
       console.error(e)
       throw Error(e)

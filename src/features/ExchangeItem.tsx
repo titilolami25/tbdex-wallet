@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { money, removeTrailingZeros } from '../currency-utils'
+import { money, removeTrailingZeros, BTC } from '../currency-utils'
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
 import 'dayjs/locale/en'
@@ -60,7 +60,7 @@ export function ExchangeItem(props: ExchangeItemProps) {
           ) : props.exchange.status === 'completed' || props.exchange.status === 'orderstatus' ? (
             <>
               <div className="w-1/5 text-xs font-medium leading-6 text-right pt-2 mr-1 text-gray-500">
-                {removeTrailingZeros(money(props.exchange.payoutAmount).format())} {props.exchange.payoutCurrency}
+                {removeTrailingZeros(BTC(props.exchange.payoutAmount).format())} {props.exchange.payoutCurrency}
               </div>
             </>
           ) :
