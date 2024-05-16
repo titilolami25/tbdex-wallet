@@ -139,6 +139,6 @@ export function renderOrderStatus (exchange) {
     case 'failed':
       return 'Failed'
     default:
-      return 'Unknown status'
+      return status
   }
 }

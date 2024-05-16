@@ -115,6 +115,6 @@ const getStatusText = (status) => {
     case 'failed':
       return 'Failed'
     default:
-      return 'Unknown status'
+      return status
   }
 }

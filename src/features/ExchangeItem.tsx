@@ -91,6 +91,6 @@ const getStatusString = (exchange) => {
     case 'failed':
       return `Payment for ${money(exchange.payinAmount).format()} ${exchange.payinCurrency} failed`
     default:
-      return 'Unknown status'
+      return exchange.status
   }
 }
