@@ -40,7 +40,7 @@ export function GetCredentialPage() {
           required
           id="countryCode"
           name="countryCode"
-          placeholder="Country code (eg. UK)"
+          placeholder="Country code (eg. GH)"
           maxLength={2}
           autoComplete='off' />
         <button

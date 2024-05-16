@@ -80,6 +80,7 @@ export async function fetchExchanges(params: {didState: BearerDid, pfiUri: strin
       const latestMessage = exchange[exchange.length - 1]
       const rfqMessage = exchange.find(message => message.kind === 'rfq')
       const quoteMessage = exchange.find(message => message.kind === 'quote')
+      console.log('quote', quoteMessage)
       const status = generateExchangeStatusValues(latestMessage)
       const fee = quoteMessage?.data['payin']?.['fee']
       const payinAmount = quoteMessage?.data['payin']?.['amount']

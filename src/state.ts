@@ -8,7 +8,7 @@ export const didState = atom<BearerDid | null>({
   effects_UNSTABLE: [
     ({ onSet, setSelf }) => {
       // Load the DID from localStorage when the atom is first used
-      const portableDid = localStorage.getItem('DID') // Can store in key manager
+      const portableDid = localStorage.getItem('DID') // Should store in key manager
       if (portableDid) {
         DidDht.import({ portableDid: JSON.parse(portableDid) }).then((bearerDid: BearerDid) => {
           setSelf(bearerDid)
