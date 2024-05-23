@@ -1,22 +1,18 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
+    "./components/**/*.{js,vue,ts}",
+    "./layouts/**/*.vue",
+    "./pages/**/*.vue",
+    "./plugins/**/*.{js,ts}",
+    "./nuxt.config.{js,ts}",
   ],
   theme: {
-    extend: {
-      maxWidth: {
-        'xxs': '240px',
-      },
-      height: {
-        '128': '32rem',
-      },
-      opacity: {
-        '50': '0.5',
-      }
-    },
+    extend: {},
   },
-  plugins: [require('@tailwindcss/forms')],
-  darkMode: 'class'
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
 }
+
