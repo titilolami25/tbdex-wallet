@@ -62,9 +62,10 @@
           </div>
           <p v-if="needsCredentials" class="text-xs text-red-400 mb-2">Required credentials are missing.</p>
           <button v-if="needsCredentials" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-slate-400 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mr-2" @click="navigateTo('/credentials')">Verify Identity</button>
-          <button @click="validateAndSubmit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-slate-400 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2" :disabled="needsCredentials">
+          <button v-if="!submitLoading" @click="validateAndSubmit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-slate-400 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2" :disabled="needsCredentials">
             Request for Quote
           </button>
+            <Spinner v-else/>
         </div>
       </div>
     </main>
@@ -93,6 +94,7 @@ const paymentDetails = ref({});
 const filteredOfferings = ref([]);
 const needsCredentials = computed(() => !satisfiesOfferingRequirements(offering.value, state.customerCredentials));
 const isLoadingOfferings = computed(() => state.payinCurrencies.length == 0)
+const submitLoading = ref(false);
 
 watch(fromCurrency, () => {
   updateToCurrencies();
@@ -155,6 +157,7 @@ const validateAndSubmit = () => {
 };
 
 const submitRequest = async () => {
+  submitLoading.value = true
   await createExchange(offering.value, amount.value, paymentDetails.value)
   router.push('/');
 };

@@ -54,8 +54,13 @@ export const useStore = () => {
     try {
       const pfiUris = state.pfiAllowlist.map(pfi => pfi.pfiUri);
       // TODO 2: Fetch offerings from PFIs
-      const offerings = [];
-
+      const offerings = await Promise.all(
+        pfiUris.map(
+          pfiUri => TbdexHttpClient.getOfferings({
+            pfiDid: pfiUri
+          })
+        )
+      );
       state.offerings = offerings.flat();
       updateCurrencies();
     } catch (error) {
@@ -65,32 +70,57 @@ export const useStore = () => {
 
   const createExchange = async (offering, amount, paymentDetails) => {
     // TODO 3: Choose only needed credentials to present using PresentationExchange.selectCredentials
-    const selectedCredentials = ''
+    const selectedCredentials = PresentationExchange.selectCredentials({
+      vcJwts: state.customerCredentials,
+      presentationDefinition: offering.data.requiredClaims,
+    })
 
     // TODO 4: Create RFQ message to Request for a Quote
-    const rfq = {}
+    const rfq = Rfq.create({
+      metadata: {
+        from: state.customerDid.uri,
+        to: offering.metadata.from,
+        protocol: '1.0'
+      },
+      data: {
+        offeringId: offering.id,
+        payin: {
+          amount: amount.toString(),
+          kind: offering.data.payin.methods[0].kind,
+          paymentDetails: {}
+        },
+        payout: {
+          kind: offering.data.payout.methods[0].kind,
+          paymentDetails: paymentDetails
+        },
+        claims: selectedCredentials
+      },
+    })
 
     try{
       // TODO 5: Verify offering requirements with RFQ - rfq.verifyOfferingRequirements(offering)
-
+      rfq.verifyOfferingRequirements(offering)
     } catch (e) {
       // handle failed verification
       console.log('Offering requirements not met', e)
     }
 
     // TODO 6: Sign RFQ message
-
+    await rfq.sign(state.customerDid)
 
     console.log('RFQ:', rfq)
 
     // TODO 7: Submit RFQ message to the PFI .createExchange(rfq)
-
+    await TbdexHttpClient.createExchange(rfq)
   }
 
   const fetchExchanges = async (pfiUri) => {
     try {
       // TODO 8: get exchanges from the PFI
-      const exchanges = []
+      const exchanges = await TbdexHttpClient.getExchanges({
+        pfiDid: pfiUri,
+        did: state.customerDid
+      });
 
       const mappedExchanges = exchanges.map(exchange => {
         const latestMessage = exchange[exchange.length - 1]
@@ -117,7 +147,7 @@ export const useStore = () => {
       })
 
       return mappedExchanges
-
+      
     } catch (error) {
       console.error('Failed to fetch exchanges:', error);
     }
@@ -125,17 +155,35 @@ export const useStore = () => {
 
   const addClose = async (exchangeId, pfiUri, reason) => {
     // TODO 9: Create Close message, sign it, and submit it to the PFI
-    const close = {}
+    const close = Close.create({
+      metadata: {
+        from: state.customerDid.uri,
+        to: pfiUri,
+        exchangeId,
+      },
+      data: {
+        reason
+      }
+    })
 
+    await close.sign(state.customerDid)
+    return await TbdexHttpClient.submitClose(close)
   }
 
   const addOrder = async (exchangeId, pfiUri) => {
     // TODO 10: Create Order message, sign it, and submit it to the PFI
-    const order = {}
+    const order = Order.create({
+      metadata: {
+        from: state.customerDid.uri,
+        to: pfiUri,
+        exchangeId
+      }
+    })
 
+    await order.sign(state.customerDid)
+    return await TbdexHttpClient.submitOrder(order)
   };
 
-  // Beginning of Utils - functions that help with the app experience itself.
   const pollExchanges = () => {
     const fetchAllExchanges = async () => {
       console.log('Polling exchanges again...');
@@ -161,6 +209,7 @@ export const useStore = () => {
     setInterval(fetchAllExchanges, 2000); // Poll every 5 seconds
   };
 
+  // Beginning of Utils - functions that help with the app experience itself.
   const initializeDid = async () => {
     try {
       const storedDid = localStorage.getItem('customerDid');
@@ -322,8 +371,6 @@ export const useStore = () => {
     // Update the state with the new transactions
     state.transactions = updatedExchanges;
   };
-
-
 
     // Automatically fetch offerings on load
   onMounted(async () => {
