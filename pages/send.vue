@@ -6,23 +6,28 @@
         <!-- Step 1: Select From and To Currencies, Display Offerings -->
         <div v-if="step === 1" class="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
           <h2 class="text-2xl font-bold mb-4">Send Money</h2>
-          <div class="mb-4">
-            <label class="block text-gray-700 dark:text-gray-300 mb-2">From Currency</label>
-            <select v-model="fromCurrency" @change="updateToCurrencies" class="w-full p-2 border rounded">
-              <option disabled value="">Select currency</option>
-              <option v-for="currency in state.payinCurrencies" :key="currency" :value="currency">{{ currency }}</option>
-            </select>
+          <div v-if="state.payinCurrencies.length">
+            <div class="mb-4">
+              <label class="block text-gray-700 dark:text-gray-300 mb-2">From Currency</label>
+              <select v-model="fromCurrency" @change="updateToCurrencies" class="w-full p-2 border rounded">
+                <option disabled value="">Select currency</option>
+                <option v-for="currency in state.payinCurrencies" :key="currency" :value="currency">{{ currency }}</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 dark:text-gray-300 mb-2">To Currency</label>
+              <select v-model="toCurrency" :disabled="!isToCurrencyEnabled" class="w-full p-2 border rounded">
+                <option disabled value="">Select currency</option>
+                <option v-for="currency in state.payoutCurrencies" :key="currency" :value="currency">{{ currency }}</option>
+              </select>
+            </div>
+            <button @click="getFilteredOfferings" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-gray-800 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+              Get Offerings
+            </button>
           </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 dark:text-gray-300 mb-2">To Currency</label>
-            <select v-model="toCurrency" :disabled="!isToCurrencyEnabled" class="w-full p-2 border rounded">
-              <option disabled value="">Select currency</option>
-              <option v-for="currency in state.payoutCurrencies" :key="currency" :value="currency">{{ currency }}</option>
-            </select>
-          </div>
-          <button @click="getFilteredOfferings" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-gray-800 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-            Get Offerings
-          </button>
+
+          <Spinner v-else />
+
 
           <div v-if="filteredOfferings.length" class="mt-4">
             <h2 class="text-2xl font-bold mb-4">Exchange Rate Offerings</h2>
@@ -57,31 +62,8 @@
           </div>
           <p v-if="needsCredentials" class="text-xs text-red-400 mb-2">Required credentials are missing.</p>
           <button v-if="needsCredentials" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-slate-400 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mr-2" @click="navigateTo('/credentials')">Verify Identity</button>
-          <button @click="validateAndPreview" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-slate-400 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2" :disabled="needsCredentials">
-            Preview Request
-          </button>
-        </div>
-
-        <!-- Step 3: Preview Transaction -->
-        <div v-if="step === 3" class="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
-          <h2 class="text-2xl font-bold mb-4">Preview Transaction</h2>
-          <div class="mb-4">
-            <label class="block text-gray-700 dark:text-gray-300 mb-2">You Send ({{ offering?.data?.payin?.currencyCode }})</label>
-            <input v-model="amount" type="number" disabled class="w-full p-2 border rounded disabled:bg-slate-200" />
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 dark:text-gray-300 mb-2">They Get ({{ offering?.data?.payout?.currencyCode }})</label>
-            <input v-model="theyGet" type="number" disabled class="w-full p-2 border rounded disabled:bg-slate-200" />
-          </div>
-          <div class="mb-4 text-gray-700 dark:text-gray-300">
-            Exchange Rate: {{ offering?.data?.payoutUnitsPerPayinUnit }} {{ offering?.data?.payout?.currencyCode }} for 1 {{ offering?.data?.payin?.currencyCode }}
-          </div>
-          <div v-for="(detail, key) in offering?.data?.payout?.methods[0]?.requiredPaymentDetails?.properties" :key="key" class="mb-4">
-            <label :for="key" class="block text-gray-700 dark:text-gray-300 mb-2">{{ detail.title }}</label>
-            <input v-model="paymentDetails[key]" :id="key" :type="detail.type" disabled class="w-full p-2 border rounded disabled:bg-slate-200" />
-          </div>
-          <button @click="submitRequest" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-            Submit Request
+          <button @click="validateAndSubmit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:bg-slate-400 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2" :disabled="needsCredentials">
+            Request for Quote
           </button>
         </div>
       </div>
@@ -94,10 +76,11 @@ import { ref, watch } from 'vue';
 import Header from '~/components/Header.vue';
 import { useStore } from '~/store.js';
 import { useRouter } from 'vue-router';
-import { Verify } from 'crypto';
+import { Verify, verify } from 'crypto';
+import Spinner from '~/components/Spinner.vue';
 
 const router = useRouter();
-const { state, setOffering, createExchange, filterOfferings, satisfiesOfferingRequirements } = useStore();
+const { state, setOffering, createExchange, filterOfferings, satisfiesOfferingRequirements, getOfferingById } = useStore();
 
 const step = ref(1);
 const fromCurrency = ref('');
@@ -109,9 +92,14 @@ const theyGet = ref('');
 const paymentDetails = ref({});
 const filteredOfferings = ref([]);
 const needsCredentials = computed(() => !satisfiesOfferingRequirements(offering.value, state.customerCredentials));
+const isLoadingOfferings = computed(() => state.payinCurrencies.length == 0)
 
 watch(fromCurrency, () => {
   updateToCurrencies();
+});
+
+watch(isLoadingOfferings, () => {
+  checkExistingSelectedOffering();
 });
 
 const updateToCurrencies = () => {
@@ -140,6 +128,7 @@ const getFilteredOfferings = () => {
 const selectOffering = (selectedOffering) => {
   offering.value = selectedOffering;
   setOffering(selectedOffering);
+  verifyCredentials();
   step.value = 2;
 };
 
@@ -149,7 +138,7 @@ const calculateTheyGet = () => {
   }
 };
 
-const validateAndPreview = () => {
+const validateAndSubmit = () => {
   if (!amount.value) {
     alert('Please enter the amount.');
     return;
@@ -162,15 +151,27 @@ const validateAndPreview = () => {
     }
   }
 
-  step.value = 3;
-};
-
-const previewRequest = () => {
-  step.value = 3;
+  submitRequest();
 };
 
 const submitRequest = async () => {
   await createExchange(offering.value, amount.value, paymentDetails.value)
   router.push('/');
+};
+
+const verifyCredentials = () => {
+  if (needsCredentials.value) {
+    localStorage.setItem('selectedOffering', JSON.stringify(offering.value));
+    router.push('/credentials');
+  }
+};
+
+const checkExistingSelectedOffering = () => {
+  if (localStorage.getItem('selectedOffering')) {
+    const offeringObject = JSON.parse(localStorage.getItem('selectedOffering'));
+    offering.value = getOfferingById(offeringObject.metadata.id);
+    localStorage.removeItem('selectedOffering');
+    step.value = 2;
+  }
 };
 </script>

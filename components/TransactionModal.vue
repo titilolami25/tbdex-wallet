@@ -3,7 +3,7 @@
     <div class="bg-white dark:bg-gray-900 rounded-lg shadow p-6 w-full max-w-md" @click.stop>
       <div class="grid gap-6">
         <div class="flex items-center gap-4">
-          <div :class="statusIconBgClass">
+          <div>
             <svg
               v-if="transaction.status === 'completed'"
               xmlns="http://www.w3.org/2000/svg"
@@ -11,7 +11,7 @@
               height="24"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="currentColor"
+              stroke="green"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -20,13 +20,13 @@
               <path d="M20 6 9 17l-5-5"></path>
             </svg>
             <svg
-              v-else-if="transaction.status === 'failed'"
+              v-else-if="transaction.status === 'failed' || transaction.status === 'cancelled'"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="currentColor"
+              stroke="red"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -94,13 +94,16 @@
             </span>
           </div>
         </div>
-        <div class="flex justify-end gap-2">
+        <div v-if="transaction.status === 'quote' && !loading" class="flex justify-end gap-2">
           <button @click="reject" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-red-500 hover:text-white h-10 px-4 py-2">
             Reject
           </button>
           <button @click="pay" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-500 text-white hover:bg-blue-700 h-10 px-4 py-2">
             Pay {{ transaction.payinAmount }} {{ transaction.payinCurrency }}
           </button>
+        </div>
+        <div v-if="loading">
+          <Spinner />
         </div>
       </div>
     </div>
@@ -110,28 +113,16 @@
 <script setup>
 import { computed } from 'vue';
 import { useStore } from '~/store.js';
+import Spinner from '~/components/Spinner.vue'
 
 
-const { state } = useStore();
-
+const { state, addOrder, addClose } = useStore();
+const loading = ref(false);
 
 const props = defineProps({
   transaction: {
     type: Object,
     required: true
-  }
-});
-
-const statusIconBgClass = computed(() => {
-  switch (props.transaction.status) {
-    case 'Completed':
-      return 'flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400';
-    case 'In Progress':
-      return 'flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400';
-    case 'Failed':
-      return 'flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400';
-    default:
-      return '';
   }
 });
 
@@ -141,13 +132,19 @@ const closeOnOutsideClick = () => {
   emit('close');
 };
 
-const reject = () => {
+const reject = async () => {
   // Handle rejection logic
+  loading.value = true;
+  await addClose(props.transaction.id, props.transaction.pfiDid, 'user cancelled')
+  loading.value = false;
   emit('close');
 };
 
-const pay = () => {
+const pay = async () => {
   // Handle payment logic
+  loading.value = true;
+  await addOrder(props.transaction.id, props.transaction.pfiDid)
+  loading.value = false;
   emit('close');
 };
 </script>

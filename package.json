@@ -21,10 +21,12 @@
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "@tbdex/http-client": "^1.0.2",
-    "@web5/credentials": "^1.0.1",
-    "@web5/dids": "^1.0.3",
-    "vite-plugin-node-stdlib-browser": "0.2.1"
+    "@tbdex/http-client": "1.0.2",
+    "@web5/credentials": "1.0.1",
+    "@web5/dids": "1.0.2",
+    "vite-plugin-node-stdlib-browser": "0.2.1",
+    "@web5/common": "1.0.0",
+    "@web5/crypto": "1.0.0"
 
   },
   "type": "module"

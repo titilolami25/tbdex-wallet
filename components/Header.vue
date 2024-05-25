@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-gray-900 text-white py-4 px-6 md:px-8 flex items-center justify-between">
+  <header class="bg-gray-900 text-white py-4 px-6 md:px-8 flex items-center justify-between sticky">
     <div class="flex items-center gap-4">
       <svg
         xmlns="http://www.w3.org/2000/svg"

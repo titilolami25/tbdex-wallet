@@ -24,11 +24,12 @@
           <div v-if="transaction.status === 'quote'" className="w-1/5 flex items-center justify-end">
             <div className="h-auto w-auto mt-1.5 p-2 rounded-lg bg-neutral-700 text-white text-xs flex items-center justify-center">Review</div>
           </div>
-          <div v-else :class="transaction.type === 'sent' ? 'text-red-500' : transaction.type === 'received' ? 'text-green-500' : 'text-gray-500'">-{{ transaction.payoutAmount }}{{ transaction.payoutCurrency }}</div>
+          <div v-else-if="transaction.status === 'completed' || transaction.status === 'orderstatus'" class="text-red-500">-{{ transaction.payoutAmount }}{{ transaction.payoutCurrency }}</div>
+          <div v-else class="text-gray-500">{{ transaction.payoutAmount }}{{ transaction.payoutCurrency }}</div>
         </li>
       </ul>
       <div v-else class="text-center text-gray-500">
-        <Spinner v-if="loading" />
+        <Spinner v-if="transactionsLoading" />
         <p v-else>No transactions available</p>
       </div>
     </div>
@@ -42,20 +43,10 @@ import { useStore } from '~/store.js';
 import Spinner from '~/components/Spinner.vue'
 import TransactionModal from '~/components/TransactionModal.vue';
 
-const { state, selectTransaction } = useStore();
-const transactions = ref([]);
+const { state, selectTransaction, pollExchanges } = useStore();
+const transactions = computed(() => state.transactions);
+const transactionsLoading = computed(() => state.transactionsLoading);
 const selectedTransaction = ref(null);
-const loading = ref(true)
-
-console.log(state.transactions)
-
-onMounted(() => {
-  // Simulate an API call to fetch transactions
-  setTimeout(() => {
-    transactions.value = state.transactions
-    loading.value = false
-  }, 2000) // Simulating a 2 second load time
-})
 
 const openTransactionModal = (transaction) => {
   selectedTransaction.value = transaction;
@@ -89,4 +80,9 @@ const getStatusString = (exchange) => {
       return exchange.status
   }
 }
+
+onMounted(() => {
+  console.log('Polling exchanges...');
+  pollExchanges();
+});
 </script>

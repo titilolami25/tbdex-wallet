@@ -1,7 +1,8 @@
 import { reactive, watch } from 'vue';
 import { Close, Order, Rfq, TbdexHttpClient } from '@tbdex/http-client'
-import { DidDht, BearerDid} from '@web5/dids'
+import { DidDht } from '@web5/dids'
 import { Jwt, PresentationExchange } from '@web5/credentials'
+import { get } from 'http';
 
 
 // Mock provider DIDs
@@ -31,34 +32,8 @@ const mockProviderDids = {
 export const useStore = () => {
   const state = reactive({
     balance: parseFloat(localStorage.getItem('walletBalance')) || 100,
-    transactions: [
-      {
-          "id": "rfq_01hyhzha5seasv81eews8q96cx",
-          "payinAmount": "100",
-          "payinCurrency": "GHS",
-          "payoutAmount": "11.00",
-          "payoutCurrency": "USDC",
-          "status": "quote",
-          "createdTime": "2024-05-23T05:42:13.433Z",
-          "expirationTime": "2028-04-30T23:00:00.000Z",
-          "from": "You",
-          "to": "dscsfsdfsfsf",
-          "pfiDid": "did:dht:qewzcx3fj8uuq7y551deqdfd1wbe6ymicr8xnua3xzkdw4n6j3bo"
-      },
-      {
-          "id": "rfq_01hyhzha5seasv81eews8q96cx",
-          "payinAmount": "100",
-          "payinCurrency": "GHS",
-          "payoutAmount": "11.00",
-          "payoutCurrency": "USDC",
-          "status": "quote",
-          "createdTime": "2024-05-23T05:42:13.433Z",
-          "expirationTime": "2028-04-30T23:00:00.000Z",
-          "from": "You",
-          "to": "dscsfsdfsfsf",
-          "pfiDid": "did:dht:qewzcx3fj8uuq7y551deqdfd1wbe6ymicr8xnua3xzkdw4n6j3bo"
-      },
-    ],
+    transactions: [],
+    transactionsLoading: true,
     pfiAllowlist: [
       { pfiUri: mockProviderDids.aquafinance_capital.uri, pfiName: mockProviderDids.aquafinance_capital.name },
       { pfiUri: mockProviderDids.swiftliquidity_solutions.uri, pfiName: mockProviderDids.swiftliquidity_solutions.name },
@@ -110,6 +85,12 @@ export const useStore = () => {
       console.error('Failed to fetch offerings:', error);
     }
   };
+
+  const getOfferingById = (offeringId) => {
+    const selectedOffering = state.offerings.find(offering => offering.id === offeringId);
+    console.log('Selected offering:', selectedOffering);
+    return selectedOffering;
+  }
 
   const updateCurrencies = () => {
     const payinCurrencies = new Set();
@@ -236,18 +217,18 @@ export const useStore = () => {
   }
 
   const fetchExchanges = async (pfiUri) => {
+
     try {
       const exchanges = await TbdexHttpClient.getExchanges({
         pfiDid: pfiUri,
-        did: state.customerDid.uri
+        did: state.customerDid
       });
-      console.log('Exchanges:', exchanges);
 
       const mappedExchanges = exchanges.map(exchange => {
         const latestMessage = exchange[exchange.length - 1]
         const rfqMessage = exchange.find(message => message.kind === 'rfq')
         const quoteMessage = exchange.find(message => message.kind === 'quote')
-        console.log('quote', quoteMessage)
+        // console.log('quote', quoteMessage)
         const status = generateExchangeStatusValues(latestMessage)
         const fee = quoteMessage?.data['payin']?.['fee']
         const payinAmount = quoteMessage?.data['payin']?.['amount']
@@ -267,13 +248,15 @@ export const useStore = () => {
         }
       })
 
-      // to handle new updates
-      const newExchanges = mappedExchanges.filter(exchange => !state.transactions.some(transaction => transaction.id === exchange.id))
+      return mappedExchanges
 
-      if(newExchanges.length) {
-        state.transactions = [...state.transactions, ...newExchanges]
-        // showToast(`New transaction: ${tx.description}`);
-      }
+      // // to handle new updates
+      // const newExchanges = mappedExchanges.filter(exchange => !state.transactions.some(transaction => transaction.id === exchange.id))
+
+      // if(newExchanges.length) {
+      //   state.transactions = [...state.transactions, ...newExchanges]
+      //   // showToast(`New transaction: ${tx.description}`);
+      // }
     } catch (error) {
       console.error('Failed to fetch exchanges:', error);
     }
@@ -318,7 +301,50 @@ export const useStore = () => {
   }
 
   const pollExchanges = () => {
-    setInterval(fetchExchanges, 5000); // Poll every 5 seconds
+    const fetchAllExchanges = async () => {
+      console.log('Polling exchanges again...');
+      if(!state.customerDid) return
+      const allExchanges = []
+      try {
+        for (const pfi of state.pfiAllowlist) {
+          const exchanges = await fetchExchanges(pfi.pfiUri);
+          allExchanges.push(...exchanges)
+        }
+        console.log('All exchanges:', allExchanges);
+        updateExchanges(allExchanges.reverse());
+        state.transactionsLoading = false;
+      } catch (error) {
+        console.error('Failed to fetch exchanges:', error);
+      }
+    };
+
+    // Run the function immediately
+    fetchAllExchanges();
+
+    // Set up the interval to run the function periodically
+    setInterval(fetchAllExchanges, 2000); // Poll every 5 seconds
+  };
+
+  const updateExchanges = (newTransactions) => {
+    const existingExchangeIds = state.transactions.map(tx => tx.id);
+    const updatedExchanges = [...state.transactions];
+
+    newTransactions.forEach(newTx => {
+      const existingTxIndex = updatedExchanges.findIndex(tx => tx.id === newTx.id);
+      if (existingTxIndex > -1) {
+        // Update the existing transaction
+        updatedExchanges[existingTxIndex] = newTx;
+      } else {
+        // Add the new transaction
+        updatedExchanges.push(newTx);
+      }
+    });
+
+    // Sort the transactions if needed
+    // updatedTransactions.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+
+    // Update the state with the new transactions
+    state.transactions = updatedExchanges;
   };
 
   const addOrder = async (exchangeId, pfiUri) => {
@@ -351,17 +377,15 @@ export const useStore = () => {
   }
 
   // Automatically fetch offerings on load
-  onMounted(() => {
+  onMounted(async () => {
     console.log('Fetching offerings...');
     fetchOfferings();
     console.log('Initializing DID...');
-    initializeDid();
+    await initializeDid();
     console.log('Loading credentials...');
     loadCredentials();
-    console.log('Polling exchanges...');
-    pollExchanges();
   });
 
-  return { state, selectTransaction, setOffering, setRequestData, deductAmount, fetchOfferings, filterOfferings, satisfiesOfferingRequirements, addCredential, renderCredential, createExchange, fetchExchanges, renderOrderStatus};
+  return { state, selectTransaction, setOffering, setRequestData, deductAmount, fetchOfferings, filterOfferings, satisfiesOfferingRequirements, addCredential, renderCredential, createExchange, fetchExchanges, renderOrderStatus, addOrder, addClose, getOfferingById, pollExchanges};
 
 };

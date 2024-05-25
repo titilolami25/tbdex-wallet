@@ -4,6 +4,7 @@
     <main class="flex-1 bg-gray-100 dark:bg-gray-800 py-8 px-6 md:px-8">
       <div class="max-w-3xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow p-6">
         <h2 class="text-2xl font-bold mb-4">Create Credential</h2>
+        <p class="text-red-400 text-sm"> Required credential missing. Create Credential </p>
         <form @submit.prevent="createCredential">
           <div class="mb-4">
             <label class="block text-gray-700 dark:text-gray-300 mb-2">Name</label>
@@ -41,6 +42,6 @@ const createCredential = async () => {
 
   addCredential(credential);
 
-  router.push('/');
+  router.push('/send');
 };
 </script>
