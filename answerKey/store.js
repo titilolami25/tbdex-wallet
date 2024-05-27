@@ -70,7 +70,7 @@ export const useStore = () => {
     }
   };
 
-  const createExchange = async (offering, amount, paymentDetails) => {
+  const createExchange = async (offering, amount, payoutPaymentDetails) => {
     // TODO 3: Choose only needed credentials to present using PresentationExchange.selectCredentials
     const selectedCredentials = PresentationExchange.selectCredentials({
       vcJwts: state.customerCredentials,
@@ -93,7 +93,7 @@ export const useStore = () => {
         },
         payout: {
           kind: offering.data.payout.methods[0].kind,
-          paymentDetails: paymentDetails
+          paymentDetails: payoutPaymentDetails
         },
         claims: selectedCredentials
       },
