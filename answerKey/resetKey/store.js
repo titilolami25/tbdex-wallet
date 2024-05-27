@@ -88,7 +88,12 @@ export const useStore = () => {
 
     console.log('RFQ:', rfq)
 
-    // TODO 7: Submit RFQ message to the PFI .createExchange(rfq)
+    try {
+      // TODO 7: Submit RFQ message to the PFI .createExchange(rfq)
+    }
+    catch (error) {
+      console.error('Failed to create exchange:', error);
+    }
 
   }
 
