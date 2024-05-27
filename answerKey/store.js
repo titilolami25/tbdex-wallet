@@ -38,14 +38,11 @@ export const useStore = () => {
     transactions: [],
     transactionsLoading: true,
     // TODO 1: Choose your PFIs
-    pfiAllowlist: [
-      { pfiUri: mockProviderDids.aquafinance_capital.uri, pfiName: mockProviderDids.aquafinance_capital.name },
-      { pfiUri: mockProviderDids.swiftliquidity_solutions.uri, pfiName: mockProviderDids.swiftliquidity_solutions.name },
-      { pfiUri: mockProviderDids.flowback_financial.uri, pfiName: mockProviderDids.flowback_financial.name },
-      { pfiUri: mockProviderDids.vertex_liquid_assets.uri, pfiName: mockProviderDids.vertex_liquid_assets.name },
-      { pfiUri: mockProviderDids.titanium_trust.uri, pfiName: mockProviderDids.titanium_trust.name }
-      // { pfiUri: 'did:dht:kdqnzqsoedntcfmcgrxshr7ek93ep1eznfxn1wnkreyy9reewa9o', pfiName: 'TB$ Capital' },
-    ],
+    pfiAllowlist: Object.keys(mockProviderDids).map(key => ({
+      pfiUri: mockProviderDids[key].uri,
+      pfiName: mockProviderDids[key].name,
+      pfiDescription: mockProviderDids[key].description,
+    })),
     selectedTransaction: null,
     offering: null,
     payinCurrencies: [],
