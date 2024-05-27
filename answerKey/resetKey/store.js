@@ -3,27 +3,32 @@ import { Close, Order, Rfq, TbdexHttpClient } from '@tbdex/http-client'
 import { DidDht } from '@web5/dids'
 import { Jwt, PresentationExchange } from '@web5/credentials'
 
-// TODO 0: Mock provider DIDs. Check pfis.txt for info.
+// TODO 0: Mock PFI DIDs with info about services they provide.
 const mockProviderDids = {
   aquafinance_capital: {
     uri: 'did:dht:qewzcx3fj8uuq7y551deqdfd1wbe6ymicr8xnua3xzkdw4n6j3bo',
-    name: 'AquaFinance Capital'
+    name: 'AquaFinance Capital',
+    description: 'Provides exchanges with the Ghanaian Cedis: GHS to USDC, GHS to KES'
   },
   swiftliquidity_solutions: {
     uri: 'did:dht:zz3m6ph36p1d8qioqfhp5dh5j6xn49cequ1yw9jnfxbz1uyfnddy',
-    name: 'SwiftLiquidity Solutions'
+    name: 'SwiftLiquidity Solutions',
+    description: 'Offers exchange rates with the South African Rand: ZAR to BTC and EUR to ZAR.'
   },
   flowback_financial: {
     uri: 'did:dht:gxwaxgihty7ar5u44gcmmdbw4ka1rbpj8agu4fom6tmsaz7aoffo',
-    name: 'Flowback Financial'
+    name: 'Flowback Financial',
+    description: 'Offers international rates with various currencies - USD to GBP, GBP to CAD.'
   },
   vertex_liquid_assets: {
     uri: 'did:dht:7zkzxjf84xuy6icw6fyjcn3uw14fty4umqd3nc4f8ih881h6bjby',
-    name: 'Vertex Liquid Assets'
+    name: 'Vertex Liquid Assets',
+    description: 'Offers currency exchanges between African currencies - MAD to EGP, GHS to NGN.'
   },
   titanium_trust: {
     uri: 'did:dht:kuggrw7nx3n4ehz455stdkdeuaekfjimhnbenpo8t4xz9gb8qzyy',
-    name: 'Titanium Trust'
+    name: 'Titanium Trust',
+    description: 'Provides offerings to exchange USD to African currencies - USD to GHS, USD to KES.'
   }
 };
 
