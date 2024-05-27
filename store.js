@@ -3,7 +3,7 @@ import { Close, Order, Rfq, TbdexHttpClient } from '@tbdex/http-client'
 import { DidDht } from '@web5/dids'
 import { Jwt, PresentationExchange } from '@web5/credentials'
 
-// TODO 0: Mock PFI DIDs with info about services they provide.
+// TODO 1: Choose Mock PFI DIDs using info about services they provide.
 const mockProviderDids = {
   aquafinance_capital: {
     uri: 'did:dht:qewzcx3fj8uuq7y551deqdfd1wbe6ymicr8xnua3xzkdw4n6j3bo',
@@ -37,7 +37,6 @@ export const useStore = () => {
     balance: parseFloat(localStorage.getItem('walletBalance')) || 100,
     transactions: [],
     transactionsLoading: true,
-    // TODO 1: Choose your PFIs
     pfiAllowlist: Object.keys(mockProviderDids).map(key => ({
       pfiUri: mockProviderDids[key].uri,
       pfiName: mockProviderDids[key].name,
