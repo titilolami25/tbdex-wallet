@@ -53,16 +53,17 @@ export const useStore = () => {
 
   const fetchOfferings = async () => {
     try {
-      const pfiUris = state.pfiAllowlist.map(pfi => pfi.pfiUri);
-      // TODO 2: Fetch offerings from PFIs
-      const offerings = await Promise.all(
-        pfiUris.map(
-          pfiUri => TbdexHttpClient.getOfferings({
-            pfiDid: pfiUri
-          })
-        )
-      );
-      state.offerings = offerings.flat();
+      const allOfferings = []
+      for (const pfi of state.pfiAllowlist) {
+        const pfiUri = pfi.pfiUri
+        // TODO 2: Fetch offerings from PFIs
+        const offerings = await TbdexHttpClient.getOfferings({
+          pfiDid: pfiUri
+        })
+        allOfferings.push(...offerings)
+      }
+
+      state.offerings = allOfferings
       updateCurrencies();
     } catch (error) {
       console.error('Failed to fetch offerings:', error);

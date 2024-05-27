@@ -53,11 +53,15 @@ export const useStore = () => {
 
   const fetchOfferings = async () => {
     try {
-      const pfiUris = state.pfiAllowlist.map(pfi => pfi.pfiUri);
-      // TODO 2: Fetch offerings from PFIs
-      const offerings = [];
+      const allOfferings = []
+      for (const pfi of state.pfiAllowlist) {
+        const pfiUri = pfi.pfiUri
+        // TODO 2: Fetch offerings from PFIs
+        const offerings = []
+        allOfferings.push(...offerings)
+      }
 
-      state.offerings = offerings.flat();
+      state.offerings = allOfferings
       updateCurrencies();
     } catch (error) {
       console.error('Failed to fetch offerings:', error);
