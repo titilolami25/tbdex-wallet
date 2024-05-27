@@ -35,7 +35,7 @@ const customerName = ref('');
 const countryCode = ref('');
 
 const createCredential = async () => {
-  const subjectDid = state.customerDid.id;
+  const subjectDid = state.customerDid.uri;
   const credential = await fetch(
     `http://localhost:9000/vc?name=${customerName.value}&country=${countryCode.value}&did=${subjectDid}`
   ).then((r) => r.text());
