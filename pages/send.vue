@@ -81,7 +81,7 @@ import { Verify, verify } from 'crypto';
 import Spinner from '~/components/Spinner.vue';
 
 const router = useRouter();
-const { state, setOffering, createExchange, filterOfferings, satisfiesOfferingRequirements, getOfferingById } = useStore();
+const { state, setOffering, createExchange, formatAmount, deductAmount, filterOfferings, satisfiesOfferingRequirements, getOfferingById } = useStore();
 
 const step = ref(1);
 const fromCurrency = ref('');
@@ -136,7 +136,7 @@ const selectOffering = (selectedOffering) => {
 
 const calculateTheyGet = () => {
   if (amount.value && offering.value) {
-    theyGet.value = (amount.value * offering.value.data.payoutUnitsPerPayinUnit).toFixed(2);
+    theyGet.value = formatAmount(amount.value * offering.value.data.payoutUnitsPerPayinUnit);
   }
 };
 

@@ -147,7 +147,7 @@ export const useStore = () => {
       })
 
       return mappedExchanges
-      
+
     } catch (error) {
       console.error('Failed to fetch exchanges:', error);
     }
@@ -307,6 +307,16 @@ export const useStore = () => {
     }
   };
 
+  const formatAmount = (amount) => {
+    if (Math.abs(amount) >= 1) {
+      return amount.toFixed(2);
+    }
+
+    const precision = Math.abs(amount) >= 0.01 ? 4 : 6;
+    return parseFloat(amount.toFixed(precision)).toString();
+  };
+
+
   const getOfferingById = (offeringId) => {
     const selectedOffering = state.offerings.find(offering => offering.id === offeringId);
     console.log('Selected offering:', selectedOffering);
@@ -382,6 +392,6 @@ export const useStore = () => {
     loadCredentials();
   });
 
-  return { state, selectTransaction, setOffering, deductAmount, fetchOfferings, filterOfferings, satisfiesOfferingRequirements, addCredential, renderCredential, createExchange, fetchExchanges, renderOrderStatus, addOrder, addClose, getOfferingById, pollExchanges};
+  return { state, selectTransaction, setOffering, deductAmount, formatAmount, fetchOfferings, filterOfferings, satisfiesOfferingRequirements, addCredential, renderCredential, createExchange, fetchExchanges, renderOrderStatus, addOrder, addClose, getOfferingById, pollExchanges};
 
 };

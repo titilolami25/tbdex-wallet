@@ -116,7 +116,7 @@ import { useStore } from '~/store.js';
 import Spinner from '~/components/Spinner.vue'
 
 
-const { state, addOrder, addClose } = useStore();
+const { state, addOrder, addClose, deductAmount } = useStore();
 const loading = ref(false);
 
 const props = defineProps({
@@ -144,6 +144,9 @@ const pay = async () => {
   // Handle payment logic
   loading.value = true;
   await addOrder(props.transaction.id, props.transaction.pfiDid)
+  if(props.transaction.payinCurrency === 'TB$' && props.transaction.payoutCurrency === 'USDC') {
+    deductAmount(props.transaction.payinAmount)
+  }
   loading.value = false;
   emit('close');
 };
