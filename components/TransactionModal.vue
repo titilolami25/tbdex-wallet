@@ -146,6 +146,7 @@ const pay = async () => {
   await addOrder(props.transaction.id, props.transaction.pfiDid)
   if(props.transaction.payinCurrency === 'TB$' && props.transaction.payoutCurrency === 'USDC') {
     deductAmount(props.transaction.payinAmount)
+    location.reload()
   }
   loading.value = false;
   emit('close');

@@ -328,6 +328,7 @@ export const useStore = () => {
     const numericAmount = parseFloat(amount);
     if (!isNaN(numericAmount) && numericAmount > 0) {
       state.balance -= numericAmount;
+      localStorage.setItem('walletBalance', state.balance.toString()); // Directly update localStorage
     }
   };
 
