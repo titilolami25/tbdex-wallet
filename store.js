@@ -30,6 +30,7 @@ const mockProviderDids = {
     name: 'Titanium Trust',
     description: 'Provides offerings to exchange USD to African currencies - USD to GHS, USD to KES.'
   }
+  // TODO 11: Surprise surprise.
 };
 
 export const useStore = () => {
@@ -68,9 +69,9 @@ export const useStore = () => {
     }
   };
 
-  const createExchange = async (offering, amount, paymentDetails) => {
+  const createExchange = async (offering, amount, payoutPaymentDetails) => {
     // TODO 3: Choose only needed credentials to present using PresentationExchange.selectCredentials
-    const selectedCredentials = ''
+    const selectedCredentials = []
 
     // TODO 4: Create RFQ message to Request for a Quote
     const rfq = {}
@@ -85,11 +86,14 @@ export const useStore = () => {
 
     // TODO 6: Sign RFQ message
 
-
     console.log('RFQ:', rfq)
 
-    // TODO 7: Submit RFQ message to the PFI .createExchange(rfq)
-
+    try {
+      // TODO 7: Submit RFQ message to the PFI .createExchange(rfq)
+    }
+    catch (error) {
+      console.error('Failed to create exchange:', error);
+    }
   }
 
   const fetchExchanges = async (pfiUri) => {
@@ -97,7 +101,81 @@ export const useStore = () => {
       // TODO 8: get exchanges from the PFI
       const exchanges = []
 
-      const mappedExchanges = exchanges.map(exchange => {
+      const mappedExchanges = formatMessages(exchanges)
+      return mappedExchanges
+    } catch (error) {
+      console.error('Failed to fetch exchanges:', error);
+    }
+  }
+
+  const addClose = async (exchangeId, pfiUri, reason) => {
+    // TODO 9: Create Close message, sign it, and submit it to the PFI
+    const close = {}
+
+    try {
+      // send Close message
+    }
+    catch (error) {
+      console.error('Failed to close exchange:', error);
+    }
+  }
+
+  const addOrder = async (exchangeId, pfiUri) => {
+    // TODO 10: Create Order message, sign it, and submit it to the PFI
+    const order = {}
+
+    try {
+      // Send order message
+
+    } catch (error) {
+      console.error('Failed to submit order:', error);
+    }
+  };
+
+  const pollExchanges = () => {
+    const fetchAllExchanges = async () => {
+      console.log('Polling exchanges again...');
+      if(!state.customerDid) return
+      const allExchanges = []
+      try {
+        for (const pfi of state.pfiAllowlist) {
+          const exchanges = await fetchExchanges(pfi.pfiUri);
+          allExchanges.push(...exchanges)
+        }
+        console.log('All exchanges:', allExchanges);
+        updateExchanges(allExchanges.reverse());
+        state.transactionsLoading = false;
+      } catch (error) {
+        console.error('Failed to fetch exchanges:', error);
+      }
+    };
+
+    // Run the function immediately
+    fetchAllExchanges();
+
+    // Set up the interval to run the function periodically
+    setInterval(fetchAllExchanges, 5000); // Poll every 5 seconds
+  };
+
+  // Beginning of Utils - functions that help with the app experience itself.
+  const initializeDid = async () => {
+    try {
+      // Make sure to use a more secure Key Manager in production. More info: https://developer.tbd.website/docs/web5/build/decentralized-identifiers/key-management
+      const storedDid = localStorage.getItem('customerDid');
+      if (storedDid) {
+        state.customerDid = await DidDht.import({ portableDid: JSON.parse(storedDid) });
+      } else {
+        state.customerDid = await DidDht.create({ options: { publish: true } });
+        const exportedDid = await state.customerDid.export();
+        localStorage.setItem('customerDid', JSON.stringify(exportedDid));
+      }
+    } catch (error) {
+      console.error('Failed to initialize DID:', error);
+    }
+  };
+
+  const formatMessages = (exchanges) => {
+    const formattedMessages = exchanges.map(exchange => {
         const latestMessage = exchange[exchange.length - 1]
         const rfqMessage = exchange.find(message => message.kind === 'rfq')
         const quoteMessage = exchange.find(message => message.kind === 'quote')
@@ -121,65 +199,8 @@ export const useStore = () => {
         }
       })
 
-      return mappedExchanges
-
-    } catch (error) {
-      console.error('Failed to fetch exchanges:', error);
-    }
+      return formattedMessages;
   }
-
-  const addClose = async (exchangeId, pfiUri, reason) => {
-    // TODO 9: Create Close message, sign it, and submit it to the PFI
-    const close = {}
-
-  }
-
-  const addOrder = async (exchangeId, pfiUri) => {
-    // TODO 10: Create Order message, sign it, and submit it to the PFI
-    const order = {}
-
-  };
-
-  // Beginning of Utils - functions that help with the app experience itself.
-  const pollExchanges = () => {
-    const fetchAllExchanges = async () => {
-      console.log('Polling exchanges again...');
-      if(!state.customerDid) return
-      const allExchanges = []
-      try {
-        for (const pfi of state.pfiAllowlist) {
-          const exchanges = await fetchExchanges(pfi.pfiUri);
-          allExchanges.push(...exchanges)
-        }
-        console.log('All exchanges:', allExchanges);
-        updateExchanges(allExchanges.reverse());
-        state.transactionsLoading = false;
-      } catch (error) {
-        console.error('Failed to fetch exchanges:', error);
-      }
-    };
-
-    // Run the function immediately
-    fetchAllExchanges();
-
-    // Set up the interval to run the function periodically
-    setInterval(fetchAllExchanges, 2000); // Poll every 5 seconds
-  };
-
-  const initializeDid = async () => {
-    try {
-      const storedDid = localStorage.getItem('customerDid');
-      if (storedDid) {
-        state.customerDid = await DidDht.import({ portableDid: JSON.parse(storedDid) });
-      } else {
-        state.customerDid = await DidDht.create({ options: { publish: true } });
-        const exportedDid = await state.customerDid.export();
-        localStorage.setItem('customerDid', JSON.stringify(exportedDid));
-      }
-    } catch (error) {
-      console.error('Failed to initialize DID:', error);
-    }
-  };
 
   const loadCredentials = () => {
     const storedCredentials = localStorage.getItem('customerCredentials');
@@ -338,9 +359,7 @@ export const useStore = () => {
     state.transactions = updatedExchanges;
   };
 
-
-
-    // Automatically fetch offerings on load
+  // Automatically fetch offerings on load
   onMounted(async () => {
     console.log('Fetching offerings...');
     fetchOfferings();

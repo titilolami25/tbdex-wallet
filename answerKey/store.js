@@ -30,6 +30,7 @@ const mockProviderDids = {
     name: 'Titanium Trust',
     description: 'Provides offerings to exchange USD to African currencies - USD to GHS, USD to KES.'
   }
+  // TODO 11: Surprise surprise.
 };
 
 export const useStore = () => {
@@ -129,32 +130,8 @@ export const useStore = () => {
         did: state.customerDid
       });
 
-      const mappedExchanges = exchanges.map(exchange => {
-        const latestMessage = exchange[exchange.length - 1]
-        const rfqMessage = exchange.find(message => message.kind === 'rfq')
-        const quoteMessage = exchange.find(message => message.kind === 'quote')
-        // console.log('quote', quoteMessage)
-        const status = generateExchangeStatusValues(latestMessage)
-        const fee = quoteMessage?.data['payin']?.['fee']
-        const payinAmount = quoteMessage?.data['payin']?.['amount']
-        const payoutPaymentDetails = rfqMessage.privateData?.payout.paymentDetails
-        return {
-          id: latestMessage.metadata.exchangeId,
-          payinAmount: (fee ? Number(payinAmount) + Number(fee) : Number(payinAmount)).toString() || rfqMessage.data['payinAmount'],
-          payinCurrency: quoteMessage.data['payin']?.['currencyCode'] ?? null,
-          payoutAmount: quoteMessage?.data['payout']?.['amount'] ?? null,
-          payoutCurrency: quoteMessage.data['payout']?.['currencyCode'],
-          status,
-          createdTime: rfqMessage.createdAt,
-          ...latestMessage.kind === 'quote' && {expirationTime: quoteMessage.data['expiresAt'] ?? null},
-          from: 'You',
-          to: payoutPaymentDetails?.address || payoutPaymentDetails?.accountNumber + ', ' + payoutPaymentDetails?.bankName || payoutPaymentDetails?.phoneNumber + ', ' + payoutPaymentDetails?.networkProvider || 'Unknown',
-          pfiDid: rfqMessage.metadata.to
-        }
-      })
-
+      const mappedExchanges = formatMessages(exchanges)
       return mappedExchanges
-
     } catch (error) {
       console.error('Failed to fetch exchanges:', error);
     }
@@ -174,7 +151,13 @@ export const useStore = () => {
     })
 
     await close.sign(state.customerDid)
-    return await TbdexHttpClient.submitClose(close)
+    try {
+      // send Close message
+      await TbdexHttpClient.submitClose(close)
+    }
+    catch (error) {
+      console.error('Failed to close exchange:', error);
+    }
   }
 
   const addOrder = async (exchangeId, pfiUri) => {
@@ -188,7 +171,12 @@ export const useStore = () => {
     })
 
     await order.sign(state.customerDid)
-    return await TbdexHttpClient.submitOrder(order)
+    try {
+      // Send order message
+      return await TbdexHttpClient.submitOrder(order)
+    } catch (error) {
+      console.error('Failed to submit order:', error);
+    }
   };
 
   const pollExchanges = () => {
@@ -213,12 +201,13 @@ export const useStore = () => {
     fetchAllExchanges();
 
     // Set up the interval to run the function periodically
-    setInterval(fetchAllExchanges, 2000); // Poll every 5 seconds
+    setInterval(fetchAllExchanges, 5000); // Poll every 5 seconds
   };
 
   // Beginning of Utils - functions that help with the app experience itself.
   const initializeDid = async () => {
     try {
+      // Make sure to use a more secure Key Manager in production. More info: https://developer.tbd.website/docs/web5/build/decentralized-identifiers/key-management
       const storedDid = localStorage.getItem('customerDid');
       if (storedDid) {
         state.customerDid = await DidDht.import({ portableDid: JSON.parse(storedDid) });
@@ -231,6 +220,34 @@ export const useStore = () => {
       console.error('Failed to initialize DID:', error);
     }
   };
+
+  const formatMessages = (exchanges) => {
+    const formattedMessages = exchanges.map(exchange => {
+        const latestMessage = exchange[exchange.length - 1]
+        const rfqMessage = exchange.find(message => message.kind === 'rfq')
+        const quoteMessage = exchange.find(message => message.kind === 'quote')
+        // console.log('quote', quoteMessage)
+        const status = generateExchangeStatusValues(latestMessage)
+        const fee = quoteMessage?.data['payin']?.['fee']
+        const payinAmount = quoteMessage?.data['payin']?.['amount']
+        const payoutPaymentDetails = rfqMessage.privateData?.payout.paymentDetails
+        return {
+          id: latestMessage.metadata.exchangeId,
+          payinAmount: (fee ? Number(payinAmount) + Number(fee) : Number(payinAmount)).toString() || rfqMessage.data['payinAmount'],
+          payinCurrency: quoteMessage.data['payin']?.['currencyCode'] ?? null,
+          payoutAmount: quoteMessage?.data['payout']?.['amount'] ?? null,
+          payoutCurrency: quoteMessage.data['payout']?.['currencyCode'],
+          status,
+          createdTime: rfqMessage.createdAt,
+          ...latestMessage.kind === 'quote' && {expirationTime: quoteMessage.data['expiresAt'] ?? null},
+          from: 'You',
+          to: payoutPaymentDetails?.address || payoutPaymentDetails?.accountNumber + ', ' + payoutPaymentDetails?.bankName || payoutPaymentDetails?.phoneNumber + ', ' + payoutPaymentDetails?.networkProvider || 'Unknown',
+          pfiDid: rfqMessage.metadata.to
+        }
+      })
+
+      return formattedMessages;
+  }
 
   const loadCredentials = () => {
     const storedCredentials = localStorage.getItem('customerCredentials');
@@ -389,7 +406,7 @@ export const useStore = () => {
     state.transactions = updatedExchanges;
   };
 
-    // Automatically fetch offerings on load
+  // Automatically fetch offerings on load
   onMounted(async () => {
     console.log('Fetching offerings...');
     fetchOfferings();

@@ -22,10 +22,8 @@
             </div>
           </div>
           <div v-if="transaction.status === 'quote'" className="w-1/5 flex items-center justify-end">
-            <div className="h-auto w-auto mt-1.5 p-2 rounded-lg bg-neutral-700 text-white text-xs flex items-center justify-center">Review</div>
+            <!-- <div className="h-auto w-auto mt-1.5 p-2 rounded-lg bg-neutral-700 text-white text-xs flex items-center justify-center">Review</div> -->
           </div>
-          <div v-else-if="transaction.status === 'completed' || transaction.status === 'orderstatus'" class="text-red-500">-{{ transaction.payoutAmount }}{{ transaction.payoutCurrency }}</div>
-          <div v-else class="text-gray-500">{{ transaction.payoutAmount }}{{ transaction.payoutCurrency }}</div>
         </li>
       </ul>
       <div v-else class="text-center text-gray-500">

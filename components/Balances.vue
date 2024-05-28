@@ -18,5 +18,5 @@
 import { useStore } from '~/store.js';
 
 const { state } = useStore();
-const balance = state.balance;
+const balance = computed(() => state.balance);
 </script>

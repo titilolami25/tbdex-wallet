@@ -71,7 +71,7 @@
           </div>
         </div>
         <div class="grid gap-2">
-          <label class="text-sm font-medium leading-none">Recipient</label>
+          <label class="text-sm font-medium leading-none">Recipient Details</label>
           <div class="flex">
             <span class="flex-1 rounded-md bg-gray-100 px-3 py-2 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100">
               {{ transaction.to }}
@@ -96,7 +96,7 @@
         </div>
         <div v-if="transaction.status === 'quote' && !loading" class="flex justify-end gap-2">
           <button @click="reject" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-red-500 hover:text-white h-10 px-4 py-2">
-            Reject
+            Cancel
           </button>
           <button @click="pay" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-500 text-white hover:bg-blue-700 h-10 px-4 py-2">
             Pay {{ transaction.payinAmount }} {{ transaction.payinCurrency }}
@@ -144,7 +144,7 @@ const pay = async () => {
   // Handle payment logic
   loading.value = true;
   await addOrder(props.transaction.id, props.transaction.pfiDid)
- if(props.transaction.payinCurrency === 'TB$' && props.transaction.payoutCurrency === 'USDC') {
+  if(props.transaction.payinCurrency === 'TB$' && props.transaction.payoutCurrency === 'USDC') {
     deductAmount(props.transaction.payinAmount)
   }
   loading.value = false;
