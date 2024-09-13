@@ -3,6 +3,7 @@
     <NuxtPage />
   </div>
 </template>
+
 <script setup lang="ts">
 import { useStore } from '~/store.js';
 import { provide } from 'vue';
@@ -15,5 +16,5 @@ useHead({
   meta: [
     { name: 'description', content: 'An example wallet app with tbDEX' }
   ]
-})
+});
 </script>

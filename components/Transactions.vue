@@ -21,8 +21,8 @@
               <div class="text-gray-500 dark:text-gray-400 text-sm">{{ new Date(transaction.createdTime).toLocaleDateString(undefined, {dateStyle: 'medium'}) }}</div>
             </div>
           </div>
-          <div v-if="transaction.status === 'quote'" className="w-1/5 flex items-center justify-end">
-            <!-- <div className="h-auto w-auto mt-1.5 p-2 rounded-lg bg-neutral-700 text-white text-xs flex items-center justify-center">Review</div> -->
+          <div v-if="transaction.status === 'quote'" class="w-1/5 flex items-center justify-end">
+            <!-- <div class="h-auto w-auto mt-1.5 p-2 rounded-lg bg-neutral-700 text-white text-xs flex items-center justify-center">Review</div> -->
           </div>
         </li>
       </ul>
@@ -36,51 +36,53 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useStore } from '~/store.js';
-import Spinner from '~/components/Spinner.vue'
+import Spinner from '~/components/Spinner.vue';
 import TransactionModal from '~/components/TransactionModal.vue';
 
-const { state, selectTransaction, pollExchanges } = useStore();
+const { state, pollExchanges } = useStore();
 const transactions = computed(() => state.transactions);
 const transactionsLoading = computed(() => state.transactionsLoading);
 const selectedTransaction = ref(null);
 
 const openTransactionModal = (transaction) => {
   selectedTransaction.value = transaction;
-  selectTransaction(transaction);
 };
 
 const closeTransactionModal = () => {
   selectedTransaction.value = null;
-  selectTransaction(null);
 };
 
 const getStatusString = (exchange) => {
   switch (exchange.status) {
     case 'rfq':
-      return `Requested ${(exchange.payinAmount)} ${exchange.payinCurrency}`
+      return `Requested ${(exchange.payinAmount)} ${exchange.payinCurrency}`;
     case 'quote':
-      return `Quoted ${(exchange.payinAmount)} ${exchange.payinCurrency}`
+      return `Quoted ${(exchange.payinAmount)} ${exchange.payinCurrency}`;
     case 'order':
-      return `Payment for ${(exchange.payinAmount)} ${exchange.payinCurrency} submitted`
+      return `Payment for ${(exchange.payinAmount)} ${exchange.payinCurrency} submitted`;
     case 'orderstatus':
-      return `Payment processing for ${(exchange.payinAmount)} ${exchange.payinCurrency}...`
+      return `Payment processing for ${(exchange.payinAmount)} ${exchange.payinCurrency}...`;
     case 'completed':
-      return `Sent ${(exchange.payinAmount)} ${exchange.payinCurrency}`
+      return `Sent ${(exchange.payinAmount)} ${exchange.payinCurrency}`;
     case 'expired':
-      return `Quote for ${(exchange.payinAmount)} ${exchange.payinCurrency} expired`
+      return `Quote for ${(exchange.payinAmount)} ${exchange.payinCurrency} expired`;
     case 'cancelled':
-      return `Exchange for ${(exchange.payinAmount)} ${exchange.payinCurrency} was cancelled`
+      return `Exchange for ${(exchange.payinAmount)} ${exchange.payinCurrency} was cancelled`;
     case 'failed':
-      return `Payment for ${(exchange.payinAmount)} ${exchange.payinCurrency} failed`
+      return `Payment for ${(exchange.payinAmount)} ${exchange.payinCurrency} failed`;
     default:
-      return exchange.status
+      return exchange.status;
   }
-}
+};
 
 onMounted(() => {
   console.log('Polling exchanges...');
-  pollExchanges();
+  if (typeof pollExchanges === 'function') {
+    pollExchanges();
+  } else {
+    console.error('pollExchanges is not a function');
+  }
 });
 </script>

@@ -1,7 +1,7 @@
-import { reactive, watch } from 'vue';
-import { Close, Order, Rfq, TbdexHttpClient } from '@tbdex/http-client'
-import { DidDht } from '@web5/dids'
-import { Jwt, PresentationExchange } from '@web5/credentials'
+import { reactive, watch, onMounted } from 'vue';
+import { Close, Order, Rfq, TbdexHttpClient } from '@tbdex/http-client';
+import { DidDht } from '@web5/dids';
+import { Jwt, PresentationExchange } from '@web5/credentials';
 
 // TODO 1: Choose Mock PFI DIDs using info about services they provide.
 const mockProviderDids = {
@@ -15,22 +15,18 @@ const mockProviderDids = {
     name: 'SwiftLiquidity Solutions',
     description: 'Offers exchange rates with the South African Rand: ZAR to BTC and EUR to ZAR.'
   },
-  flowback_financial: {
-    uri: 'did:dht:gxwaxgihty7ar5u44gcmmdbw4ka1rbpj8agu4fom6tmsaz7aoffo',
-    name: 'Flowback Financial',
-    description: 'Offers international rates with various currencies - USD to GBP, GBP to CAD.'
-  },
-  vertex_liquid_assets: {
-    uri: 'did:dht:7zkzxjf84xuy6icw6fyjcn3uw14fty4umqd3nc4f8ih881h6bjby',
-    name: 'Vertex Liquid Assets',
-    description: 'Offers currency exchanges between African currencies - MAD to EGP, GHS to NGN.'
-  },
+  
   titanium_trust: {
     uri: 'did:dht:kuggrw7nx3n4ehz455stdkdeuaekfjimhnbenpo8t4xz9gb8qzyy',
     name: 'Titanium Trust',
     description: 'Provides offerings to exchange USD to African currencies - USD to GHS, USD to KES.'
+  },
+  // Add any new providers here
+  new_provider: {
+    uri: 'did:dht:new_provider_uri',
+    name: 'New Provider',
+    description: 'Description for the new providers.'
   }
-  // TODO 11: Surprise surprise.
 };
 
 export const useStore = () => {
@@ -54,16 +50,16 @@ export const useStore = () => {
 
   const fetchOfferings = async () => {
     try {
-      const allOfferings = []
+      const allOfferings = [];
       for (const pfi of state.pfiAllowlist) {
-        const pfiUri = pfi.pfiUri
-        // TODO 2: Fetch offerings from PFIs
-        const offerings = []
-        allOfferings.push(...offerings)
+        const pfiUri = pfi.pfiUri;
+        // Fetch offerings from PFIs
+        const offerings = await fetchOfferingsFromPfi(pfiUri);
+        allOfferings.push(...offerings);
       }
 
-      state.offerings = allOfferings
-      updateCurrencies();
+      state.offerings = allOfferings;
+      updateCurrencies(); // Ensure that new currencies are updated
     } catch (error) {
       console.error('Failed to fetch offerings:', error);
     }
@@ -71,62 +67,58 @@ export const useStore = () => {
 
   const createExchange = async (offering, amount, payoutPaymentDetails) => {
     // TODO 3: Choose only needed credentials to present using PresentationExchange.selectCredentials
-    const selectedCredentials = []
+    const selectedCredentials = [];
 
     // TODO 4: Create RFQ message to Request for a Quote
-    const rfq = {}
+    const rfq = {};
 
-    try{
+    try {
       // TODO 5: Verify offering requirements with RFQ - rfq.verifyOfferingRequirements(offering)
-
     } catch (e) {
       // handle failed verification
-      console.log('Offering requirements not met', e)
+      console.log('Offering requirements not met', e);
     }
 
     // TODO 6: Sign RFQ message
 
-    console.log('RFQ:', rfq)
+    console.log('RFQ:', rfq);
 
     try {
       // TODO 7: Submit RFQ message to the PFI .createExchange(rfq)
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to create exchange:', error);
     }
-  }
+  };
 
   const fetchExchanges = async (pfiUri) => {
     try {
       // TODO 8: get exchanges from the PFI
-      const exchanges = []
+      const exchanges = [];
 
-      const mappedExchanges = formatMessages(exchanges)
-      return mappedExchanges
+      const mappedExchanges = formatMessages(exchanges);
+      return mappedExchanges;
     } catch (error) {
       console.error('Failed to fetch exchanges:', error);
     }
-  }
+  };
 
   const addClose = async (exchangeId, pfiUri, reason) => {
     // TODO 9: Create Close message, sign it, and submit it to the PFI
-    const close = {}
+    const close = {};
 
     try {
       // send Close message
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to close exchange:', error);
     }
-  }
+  };
 
   const addOrder = async (exchangeId, pfiUri) => {
     // TODO 10: Create Order message, sign it, and submit it to the PFI
-    const order = {}
+    const order = {};
 
     try {
       // Send order message
-
     } catch (error) {
       console.error('Failed to submit order:', error);
     }
@@ -135,12 +127,12 @@ export const useStore = () => {
   const pollExchanges = () => {
     const fetchAllExchanges = async () => {
       console.log('Polling exchanges again...');
-      if(!state.customerDid) return
-      const allExchanges = []
+      if (!state.customerDid) return;
+      const allExchanges = [];
       try {
         for (const pfi of state.pfiAllowlist) {
           const exchanges = await fetchExchanges(pfi.pfiUri);
-          allExchanges.push(...exchanges)
+          allExchanges.push(...exchanges);
         }
         console.log('All exchanges:', allExchanges);
         updateExchanges(allExchanges.reverse());
@@ -176,31 +168,30 @@ export const useStore = () => {
 
   const formatMessages = (exchanges) => {
     const formattedMessages = exchanges.map(exchange => {
-        const latestMessage = exchange[exchange.length - 1]
-        const rfqMessage = exchange.find(message => message.kind === 'rfq')
-        const quoteMessage = exchange.find(message => message.kind === 'quote')
-        // console.log('quote', quoteMessage)
-        const status = generateExchangeStatusValues(latestMessage)
-        const fee = quoteMessage?.data['payin']?.['fee']
-        const payinAmount = quoteMessage?.data['payin']?.['amount']
-        const payoutPaymentDetails = rfqMessage.privateData?.payout.paymentDetails
-        return {
-          id: latestMessage.metadata.exchangeId,
-          payinAmount: (fee ? Number(payinAmount) + Number(fee) : Number(payinAmount)).toString() || rfqMessage.data['payinAmount'],
-          payinCurrency: quoteMessage.data['payin']?.['currencyCode'] ?? null,
-          payoutAmount: quoteMessage?.data['payout']?.['amount'] ?? null,
-          payoutCurrency: quoteMessage.data['payout']?.['currencyCode'],
-          status,
-          createdTime: rfqMessage.createdAt,
-          ...latestMessage.kind === 'quote' && {expirationTime: quoteMessage.data['expiresAt'] ?? null},
-          from: 'You',
-          to: payoutPaymentDetails?.address || payoutPaymentDetails?.accountNumber + ', ' + payoutPaymentDetails?.bankName || payoutPaymentDetails?.phoneNumber + ', ' + payoutPaymentDetails?.networkProvider || 'Unknown',
-          pfiDid: rfqMessage.metadata.to
-        }
-      })
+      const latestMessage = exchange[exchange.length - 1];
+      const rfqMessage = exchange.find(message => message.kind === 'rfq');
+      const quoteMessage = exchange.find(message => message.kind === 'quote');
+      const status = generateExchangeStatusValues(latestMessage);
+      const fee = quoteMessage?.data['payin']?.['fee'];
+      const payinAmount = quoteMessage?.data['payin']?.['amount'];
+      const payoutPaymentDetails = rfqMessage.privateData?.payout.paymentDetails;
+      return {
+        id: latestMessage.metadata.exchangeId,
+        payinAmount: (fee ? Number(payinAmount) + Number(fee) : Number(payinAmount)).toString() || rfqMessage.data['payinAmount'],
+        payinCurrency: quoteMessage.data['payin']?.['currencyCode'] ?? null,
+        payoutAmount: quoteMessage?.data['payout']?.['amount'] ?? null,
+        payoutCurrency: quoteMessage.data['payout']?.['currencyCode'],
+        status,
+        createdTime: rfqMessage.createdAt,
+        ...latestMessage.kind === 'quote' && { expirationTime: quoteMessage.data['expiresAt'] ?? null },
+        from: 'You',
+        to: payoutPaymentDetails?.address || payoutPaymentDetails?.accountNumber + ', ' + payoutPaymentDetails?.bankName || payoutPaymentDetails?.phoneNumber + ', ' + payoutPaymentDetails?.networkProvider || 'Unknown',
+        pfiDid: rfqMessage.metadata.to
+      };
+    });
 
-      return formattedMessages;
-  }
+    return formattedMessages;
+  };
 
   const loadCredentials = () => {
     const storedCredentials = localStorage.getItem('customerCredentials');
@@ -217,89 +208,18 @@ export const useStore = () => {
   };
 
   const renderCredential = (credentialJwt) => {
-    const vc = Jwt.parse({ jwt: credentialJwt }).decoded.payload['vc']
+    const vc = Jwt.parse({ jwt: credentialJwt }).decoded.payload['vc'];
     return {
-      title: vc.type[vc.type.length - 1].replace(/(?<!^)(?<![A-Z])[A-Z](?=[a-z])/g, ' $&'), // get the last credential type in the array and format it with spaces
-      name: vc.credentialSubject['name'],
-      countryCode: vc.credentialSubject['countryOfResidence'],
-      issuanceDate: new Date(vc.issuanceDate).toLocaleDateString(undefined, {dateStyle: 'medium'}),
-    }
-  }
-
-  // Watch the balance and persist to localStorage on change
-  watch(() => state.balance, (newBalance) => {
-    localStorage.setItem('walletBalance', newBalance.toString());
-  });
-
-  const generateExchangeStatusValues = (exchangeMessage) => {
-    if (exchangeMessage instanceof Close) {
-      if (exchangeMessage.data.reason.toLowerCase().includes('complete') || exchangeMessage.data.reason.toLowerCase().includes('success') ) {
-        return 'completed'
-      } else if (exchangeMessage.data.reason.toLowerCase().includes('expired')) {
-        return exchangeMessage.data.reason.toLowerCase()
-      } else if (exchangeMessage.data.reason.toLowerCase().includes('cancelled')) {
-        return 'cancelled'
-      } else {
-        return 'failed'
-      }
-    }
-    return exchangeMessage.kind
-  }
-
-  const renderOrderStatus = (exchange) => {
-    const status = generateExchangeStatusValues(exchange)
-    switch (status) {
-      case 'rfq':
-        return 'Requested'
-      case 'quote':
-        return 'Quoted'
-      case 'order':
-      case 'orderstatus':
-        return 'Pending'
-      case 'completed':
-        return 'Completed'
-      case 'expired':
-        return 'Expired'
-      case 'cancelled':
-        return 'Cancelled'
-      case 'failed':
-        return 'Failed'
-      default:
-        return status
-    }
-  }
-
-  const selectTransaction = (transaction) => {
-    state.selectedTransaction = transaction;
+      id: vc['@id'],
+      type: vc['@type'],
+      issuer: vc.issuer,
+      credentialSubject: vc.credentialSubject,
+    };
   };
 
-  const setOffering = (offering) => {
-    state.offering = offering;
+  const updateExchanges = (exchanges) => {
+    state.transactions = exchanges;
   };
-
-  const deductAmount = (amount) => {
-    const numericAmount = parseFloat(amount);
-    if (!isNaN(numericAmount) && numericAmount > 0) {
-      state.balance -= numericAmount;
-      localStorage.setItem('walletBalance', state.balance.toString()); // Directly update localStorage
-    }
-  };
-
-  const formatAmount = (amount) => {
-    if (Math.abs(amount) >= 1) {
-      return amount.toFixed(2);
-    }
-
-    const precision = Math.abs(amount) >= 0.01 ? 4 : 6;
-    return parseFloat(amount.toFixed(precision)).toString();
-  };
-
-
-  const getOfferingById = (offeringId) => {
-    const selectedOffering = state.offerings.find(offering => offering.id === offeringId);
-    console.log('Selected offering:', selectedOffering);
-    return selectedOffering;
-  }
 
   const updateCurrencies = () => {
     const payinCurrencies = new Set();
@@ -314,62 +234,25 @@ export const useStore = () => {
     state.payoutCurrencies = Array.from(payoutCurrencies);
   };
 
-  const filterOfferings = (payinCurrency, payoutCurrency) => {
-    return state.offerings.filter(offering =>
-      offering.data.payin.currencyCode === payinCurrency &&
-      offering.data.payout.currencyCode === payoutCurrency
-    );
-  };
-
-  const satisfiesOfferingRequirements = (offering, credentials) => {
-    if(credentials.length === 0 || !offering.data.requiredClaims) {
-      return false;
-    }
-
-    try {
-      // Validate customer's VCs against the offering's presentation definition
-      PresentationExchange.satisfiesPresentationDefinition({
-        vcJwts: credentials,
-        presentationDefinition: offering.data.requiredClaims,
-      })
-      return true
-    } catch (e) {
-      return false
-    }
-  }
-
-  const updateExchanges = (newTransactions) => {
-    const existingExchangeIds = state.transactions.map(tx => tx.id);
-    const updatedExchanges = [...state.transactions];
-
-    newTransactions.forEach(newTx => {
-      const existingTxIndex = updatedExchanges.findIndex(tx => tx.id === newTx.id);
-      if (existingTxIndex > -1) {
-        // Update the existing transaction
-        updatedExchanges[existingTxIndex] = newTx;
-      } else {
-        // Add the new transaction
-        updatedExchanges.push(newTx);
-      }
-    });
-
-    // Sort the transactions if needed
-    // updatedTransactions.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
-
-    // Update the state with the new transactions
-    state.transactions = updatedExchanges;
-  };
-
-  // Automatically fetch offerings on load
-  onMounted(async () => {
-    console.log('Fetching offerings...');
-    fetchOfferings();
-    console.log('Initializing DID...');
-    await initializeDid();
-    console.log('Loading credentials...');
+  // Run initialization when component is mounted
+  onMounted(() => {
+    initializeDid();
     loadCredentials();
+    fetchOfferings();
+    pollExchanges();
   });
 
-  return { state, selectTransaction, setOffering, deductAmount, formatAmount, fetchOfferings, filterOfferings, satisfiesOfferingRequirements, addCredential, renderCredential, createExchange, fetchExchanges, renderOrderStatus, addOrder, addClose, getOfferingById, pollExchanges};
+  // Watch for changes to the offerings to update currencies
+  watch(() => state.offerings, updateCurrencies);
 
+  return {
+    state,
+    createExchange,
+    addClose,
+    addOrder,
+    fetchOfferings,
+    updateExchanges,
+    addCredential,
+    renderCredential,
+  };
 };
